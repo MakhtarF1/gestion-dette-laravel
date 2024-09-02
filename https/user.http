@@ -1,0 +1,40 @@
+### Login
+GET http://127.0.0.1:8000/api/v1/login
+Accept: application/json
+Content-Type: application/json
+
+### Liste des utilisateurs
+GET http://127.0.0.1:8000/api/v1/users
+Accept: application/json
+Content-Type: application/json
+
+### Détails d'un utilisateur
+GET http://127.0.0.1:8000/api/v1/users/2
+Accept: application/json
+Content-Type: application/json
+
+### Créer un nouvel utilisateur
+POST http://127.0.0.1:8000/api/v1/users
+Accept: application/json
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "password123"
+}
+
+### Mettre à jour un utilisateur
+PUT http://127.0.0.1:8000/api/v1/users/1
+Accept: application/json
+Content-Type: application/json
+
+{
+    "name": "Jane Doe",
+    "email": "jane@example.com"
+}
+
+### Supprimer un utilisateur
+DELETE http://127.0.0.1:8000/api/v1/users/1
+Accept: application/json
+Content-Type: application/json

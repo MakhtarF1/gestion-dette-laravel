@@ -1,0 +1,39 @@
+### Obtenir un token pour les clients
+GET http://127.0.0.1:8000/api/v1/clients/token
+Accept: application/json
+Content-Type: application/json
+
+### Liste des clients
+GET http://127.0.0.1:8000/api/v1/clients?page=2
+Accept: application/json
+Content-Type: application/json
+
+### Détails d'un client
+GET http://127.0.0.1:8000/api/v1/clients/1
+Accept: application/json
+Content-Type: application/json
+
+### Créer un nouveau client
+POST http://127.0.0.1:8000/api/v1/clients
+Accept: application/json
+Content-Type: application/json
+
+{
+    "name": "Client Name",
+    "email": "client@example.com"
+}
+
+### Mettre à jour un client
+PUT http://127.0.0.1:8000/api/v1/clients/1
+Accept: application/json
+Content-Type: application/json
+
+{
+    "name": "Updated Client Name",
+    "email": "updated_client@example.com"
+}
+
+### Supprimer un client
+DELETE http://127.0.0.1:8000/api/v1/clients/2
+Accept: application/json
+Content-Type: application/json
