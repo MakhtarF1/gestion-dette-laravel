@@ -13,10 +13,20 @@ components:
       scheme: bearer
       bearerFormat: JWT
 
+tags:
+  - name: Users
+    description: Endpoints liés à la gestion des utilisateurs
+  - name: Clients
+    description: Endpoints liés à la gestion des clients
+  - name: Articles
+    description: Endpoints liés à la gestion des articles
+
 paths:
   /api/v1/login:
     post:
       summary: Connexion utilisateur
+      tags:
+        - Users
       requestBody:
         required: true
         content:
@@ -38,18 +48,15 @@ paths:
               schema:
                 type: object
                 properties:
+                  token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                   status:
                     type: string
-                    example: "success"
-                  data:
-                    type: object
-                    properties:
-                      message:
-                        type: string
-                        example: "Connexion réussie pour: terence53@example.org"
-                      token:
-                        type: string
-                        example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9..."
+                    example: "OK"
+                  message:
+                    type: string
+                    example: "Connexion réussie"
         '404':
           description: Utilisateur non trouvé
         '401':
@@ -58,15 +65,31 @@ paths:
   /api/v1/logout:
     post:
       summary: Déconnexion utilisateur
+      tags:
+        - Users
       security:
         - bearerAuth: []
       responses:
         '200':
           description: Déconnexion réussie
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Successfully logged out"
+        '401':
+          description: Non autorisé (token invalide ou absent)
 
   /api/v1/register:
     post:
       summary: Inscription d'un nouvel utilisateur
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -76,19 +99,62 @@ paths:
               properties:
                 login:
                   type: string
+                  example: "nouvel_utilisateur@example.com"
                 password:
                   type: string
+                  example: "Password123!"
                 role:
                   type: string
+                  example: "client"
+                clientid:
+                  type: integer
+                  example: 1
       responses:
         '201':
           description: Utilisateur créé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  client:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      prenom:
+                        type: string
+                      nom:
+                        type: string
+                      user_id:
+                        type: integer
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      login:
+                        type: string
+                      role_id:
+                        type: integer
         '400':
-          description: Erreur de validation
+          description: Erreur de validation ou client non valide
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Le client doit exister et ne doit pas avoir de compte utilisateur."
 
   /api/v1/users:
     get:
       summary: Récupérer la liste des utilisateurs
+      tags:
+        - Users
       security:
         - bearerAuth: []
       responses:
@@ -108,6 +174,8 @@ paths:
 
     post:
       summary: Créer un nouvel utilisateur
+      tags:
+        - Users
       requestBody:
         required: true
         content:
@@ -126,12 +194,23 @@ paths:
       responses:
         '201':
           description: Utilisateur créé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
         '400':
           description: Erreur de validation
 
   /api/v1/users/{id}:
     get:
       summary: Récupérer un utilisateur par ID
+      tags:
+        - Users
       parameters:
         - name: id
           in: path
@@ -157,6 +236,8 @@ paths:
 
     put:
       summary: Mettre à jour un utilisateur
+      tags:
+        - Users
       parameters:
         - name: id
           in: path
@@ -181,11 +262,22 @@ paths:
       responses:
         '200':
           description: Utilisateur mis à jour
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
         '404':
           description: Utilisateur non trouvé
 
     delete:
       summary: Supprimer un utilisateur
+      tags:
+        - Users
       parameters:
         - name: id
           in: path
@@ -201,11 +293,178 @@ paths:
   /api/v1/clients:
     get:
       summary: Récupérer la liste des clients
+      tags:
+        - Clients
       security:
-        - bearerAuth: []
+        - bearerAuth: []  
+      parameters:
+        - name: comptes
+          in: query
+          required: false
+          description: Filtrer par comptes utilisateurs (oui/non)
+          schema:
+            type: string
+            enum: [oui, non]
+        - name: active
+          in: query
+          required: false
+          description: Filtrer par statut actif (oui/non)
+          schema:
+            type: string
+            enum: [oui, non]
+        - name: user_id
+          in: query
+          required: false
+          description: Filtrer par ID d'utilisateur
+          schema:
+            type: integer
       responses:
         '200':
-          description: Liste des clients
+          description: Liste des clients récupérée avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        prenom:
+                          type: string
+                        surnom:
+                          type: string
+                        telephone:
+                          type: string
+                        user:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            login:
+                              type: string
+
+    post:
+      summary: Créer un nouveau client
+      tags:
+        - Clients
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                surnom:
+                  type: string
+                prenom:
+                  type: string
+                adresse:
+                  type: string
+                telephone:
+                  type: string
+                login:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+      responses:
+        '201':
+          description: Client créé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  client:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      prenom:
+                        type: string
+                      surnom:
+                        type: string
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                          login:
+                            type: string
+        '400':
+          description: Erreur de validation
+
+  /api/v1/clients/{id}:
+    get:
+      summary: Récupérer un client par ID avec utilisateur associé
+      tags:
+        - Clients
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du client
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Client récupéré avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  client:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      prenom:
+                        type: string
+                      surnom:
+                        type: string
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                          login:
+                            type: string
+        '404':
+          description: Client non trouvé
+
+  /api/v1/clients/telephone:
+    get:
+      summary: Récupérer un client par numéro de téléphone
+      tags:
+        - Clients
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: telephone
+          in: query
+          required: true
+          description: Numéro de téléphone du client
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Client(s) récupéré(s) avec succès
           content:
             application/json:
               schema:
@@ -217,160 +476,54 @@ paths:
                       type: integer
                     prenom:
                       type: string
-                    nom:
+                    surnom:
                       type: string
-
-    post:
-      summary: Créer un nouveau client
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                prenom:
-                  type: string
-                nom:
-                  type: string
-                adresse:
-                  type: string
-                telephone:
-                  type: string
-      responses:
-        '201':
-          description: Client créé avec succès
         '400':
-          description: Erreur de validation
+          description: Numéro de téléphone requis
+        '404':
+          description: Aucun client trouvé pour ce numéro de téléphone
 
-  /api/v1/clients/{id}:
+  /api/v1/clients/{id}/dettes:
     get:
-      summary: Récupérer un client par ID
+      summary: Récupérer les dettes d'un client par ID
+      tags:
+        - Clients
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
+          description: ID du client
           schema:
             type: integer
-      security:
-        - bearerAuth: []
       responses:
         '200':
-          description: Client trouvé
+          description: Dettes récupérées avec succès
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  prenom:
-                    type: string
-                  nom:
-                    type: string
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    montant:
+                      type: number
+                    date:
+                      type: string
+                      format: date
         '404':
           description: Client non trouvé
-
-    put:
-      summary: Mettre à jour un client
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                prenom:
-                  type: string
-                nom:
-                  type: string
-                adresse:
-                  type: string
-                telephone:
-                  type: string
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Client mis à jour
-        '404':
-          description: Client non trouvé
-
-    delete:
-      summary: Supprimer un client
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      security:
-        - bearerAuth: []
-      responses:
-        '204':
-          description: Client supprimé
-
-  /api/v1/clients/{id}/user:
-    post:
-      summary: Récupérer un client avec utilisateur
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Client avec utilisateur trouvé
-        '404':
-          description: Client non trouvé
-
-  /api/v1/clients/{id}/dettes:
-    post:
-      summary: Lister les dettes d'un client
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Liste des dettes
-        '404':
-          description: Client non trouvé
-
-  /api/v1/clients/telephone:
-    post:
-      summary: Récupérer un client par numéro de téléphone
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                telephone:
-                  type: string
-      responses:
-        '200':
-          description: Client trouvé
-        '404':
-          description: Aucun client trouvé
 
   /api/v1/articles:
     get:
+      tags:
+        - Articles
       summary: Récupérer la liste des articles
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Liste des articles
@@ -385,8 +538,14 @@ paths:
                       type: integer
                     libelle:
                       type: string
+                    quantitestock:
+                      type: integer
 
     post:
+      tags:
+        - Articles
+      security:
+        - bearerAuth: []
       summary: Créer un nouvel article
       requestBody:
         required: true
@@ -402,35 +561,24 @@ paths:
       responses:
         '201':
           description: Article créé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  libelle:
+                    type: string
+                  quantitestock:
+                    type: integer
         '400':
           description: Erreur de validation
 
-    put:
-      summary: Mise à jour en masse des articles
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                articles:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      quantitestock:
-                        type: integer
-      responses:
-        '200':
-          description: Mise à jour effectuée
-        '400':
-          description: Erreur dans les données fournies
-
   /api/v1/articles/{article}:
     get:
+      tags:
+        - Articles
       summary: Récupérer un article par ID
       parameters:
         - name: article
@@ -438,13 +586,28 @@ paths:
           required: true
           schema:
             type: integer
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Article trouvé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  libelle:
+                    type: string
+                  quantitestock:
+                    type: integer
         '404':
           description: Article non trouvé
 
     put:
+      tags:
+        - Articles
       summary: Mettre à jour un article
       parameters:
         - name: article
@@ -463,13 +626,28 @@ paths:
                   type: string
                 quantitestock:
                   type: integer
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Article mis à jour
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  libelle:
+                    type: string
+                  quantitestock:
+                    type: integer
         '404':
           description: Article non trouvé
 
     delete:
+      tags:
+        - Articles
       summary: Supprimer un article
       parameters:
         - name: article
@@ -477,26 +655,8 @@ paths:
           required: true
           schema:
             type: integer
+      security:
+        - bearerAuth: []
       responses:
         '204':
           description: Article supprimé
-
-  /api/v1/articles/libelle:
-    post:
-      summary: Récupérer un article par libellé
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                libelle:
-                  type: string
-      responses:
-        '200':
-          description: Article trouvé
-        '400':
-          description: Libellé manquant
-        '404':
-          description: Article non trouvé

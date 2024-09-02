@@ -1,0 +1,869 @@
+/api/v1/register:
+    post:
+      summary: Enregistrer un nouvel utilisateur avec un client existant
+      operationId: registerUser
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                login:
+                  type: string
+                  example: jdoe
+                password:
+                  type: string
+                  example: P@ssw0rd!
+                role:
+                  type: string
+                  example: admin
+                clientid:
+                  type: integer
+                  example: 123
+              required:
+                - login
+                - password
+                - role
+                - clientid
+      responses:
+        '201':
+          description: Utilisateur et client associés avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  client:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      prenom:
+                        type: string
+                      nom:
+                        type: string
+                      user_id:
+                        type: integer
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      login:
+                        type: string
+                      role_id:
+                        type: integer
+        '400':
+          description: Erreur de validation ou client non valide
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Le client doit exister et ne doit pas avoir de compte utilisateur.
+        '500':
+          description: Erreur interne du serveur
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Erreur interne du serveur
+      security:
+        - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+
+
+
+========================LOGOUT
+
+/api/v1/logout:
+    post:
+      summary: Déconnecter l'utilisateur actuellement authentifié
+      operationId: logoutUser
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: Déconnexion réussie
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Successfully logged out
+        '401':
+          description: Non autorisé (token manquant ou invalide)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Non autorisé
+        '500':
+          description: Erreur interne du serveur
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Erreur interne du serveur
+      security:
+        - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+
+
+      ============================filtrage client 
+
+
+      /api/v1/clients:
+  get:
+    summary: Récupérer une liste de clients avec différents critères de filtrage
+    parameters:
+      - name: comptes
+        in: query
+        description: Filtrer les clients par présence d'un compte utilisateur (oui pour les clients avec un compte, non pour ceux sans compte)
+        schema:
+          type: string
+          enum: [oui, non]
+      - name: active
+        in: query
+        description: Filtrer les clients par statut actif (oui pour actifs, non pour inactifs)
+        schema:
+          type: string
+          enum: [oui, non]
+      - name: user_id
+        in: query
+        description: Filtrer les clients par `user_id` spécifique
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: Liste des clients filtrés
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Client'
+                meta:
+                  type: object
+                  properties:
+                    current_page:
+                      type: integer
+                    from:
+                      type: integer
+                    last_page:
+                      type: integer
+                    per_page:
+                      type: integer
+                    to:
+                      type: integer
+                    total:
+                      type: integer
+      '400':
+        description: Erreur de demande
+===========================
+
+  /api/v1/clients:
+    get:
+      summary: Récupérer une liste de clients avec différents critères de filtrage
+      parameters:
+        - name: comptes
+          in: query
+          description: Filtrer les clients par présence d'un compte utilisateur (oui pour les clients avec un compte, non pour ceux sans compte)
+          schema:
+            type: string
+            enum: [oui, non]
+        - name: active
+          in: query
+          description: Filtrer les clients par statut actif (oui pour actifs, non pour inactifs)
+          schema:
+            type: string
+            enum: [oui, non]
+        - name: user_id
+          in: query
+          description: Filtrer les clients par `user_id` spécifique
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Liste des clients filtrés
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Client'
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                      from:
+                        type: integer
+                      last_page:
+                        type: integer
+                      per_page:
+                        type: integer
+                      to:
+                        type: integer
+                      total:
+                        type: integer
+        '400':
+          description: Erreur de demande
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      security:
+        - bearerAuth: []
+
+components:
+  schemas:
+    Client:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        city:
+          type: string
+        picture:
+          type: string
+        user_id:
+          type: integer
+      required:
+        - id
+        - name
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+=================================
+
+
+openapi: 3.0.0
+info:
+  title: API de Gestion des Clients
+  version: 1.0.0
+  description: API pour gérer les clients avec la possibilité de récupérer les détails d'un client spécifique avec les informations de l'utilisateur associé.
+servers:
+  - url: http://localhost/api/v1
+    description: Serveur de développement local
+
+paths:
+  /api/v1/clients/{id}:
+    get:
+      summary: Récupérer les détails d'un client avec les informations de l'utilisateur associé
+      parameters:
+        - name: id
+          in: path
+          description: ID du client à récupérer
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Détails du client avec l'utilisateur associé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  client:
+                    $ref: '#/components/schemas/Client'
+        '404':
+          description: Client non trouvé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      security:
+        - bearerAuth: []
+
+components:
+  schemas:
+    Client:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        city:
+          type: string
+        picture:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+        - id
+        - name
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role_id:
+          type: integer
+        state:
+          type: string
+      required:
+        - id
+        - name
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+
+===============================
+
+
+openapi: 3.0.0
+info:
+  title: API de Gestion des Clients
+  version: 1.0.0
+  description: API pour gérer les clients avec la possibilité de récupérer des clients basés sur leur numéro de téléphone.
+servers:
+  - url: http://localhost/api/v1
+    description: Serveur de développement local
+
+paths:
+  /api/v1/clients/telephone:
+    get:
+      summary: Récupérer des clients par numéro de téléphone
+      parameters:
+        - name: telephone
+          in: query
+          description: Numéro de téléphone du client à rechercher
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Liste des clients trouvés pour le numéro de téléphone
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Client'
+        '400':
+          description: Numéro de téléphone requis
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Aucun client trouvé pour ce numéro de téléphone
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      security:
+        - bearerAuth: []
+
+components:
+  schemas:
+    Client:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        city:
+          type: string
+        picture:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+        - id
+        - name
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role_id:
+          type: integer
+        state:
+          type: string
+      required:
+        - id
+        - name
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+========================================
+
+openapi: 3.0.0
+info:
+  title: API de Gestion des Clients
+  version: 1.0.0
+  description: API pour gérer les clients avec la possibilité de récupérer un client basé sur son ID.
+servers:
+  - url: http://localhost/api/v1
+    description: Serveur de développement local
+
+paths:
+  /api/v1/clients/{id}:
+    get:
+      summary: Récupérer un client par ID
+      description: Récupère les détails d'un client spécifique en fonction de son ID.
+      parameters:
+        - name: id
+          in: path
+          description: ID du client à récupérer
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Client trouvé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Client'
+        '404':
+          description: Client non trouvé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Client non trouvé
+      security:
+        - bearerAuth: []
+
+components:
+  schemas:
+    Client:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Aissatou Sow"
+        email:
+          type: string
+          example: "aissatou.sow@example.com"
+        phone:
+          type: string
+          example: "+221774445566"
+        city:
+          type: string
+          example: "Dakar"
+        picture:
+          type: string
+          example: "http://example.com/images/aissatou.jpg"
+      required:
+        - id
+        - name
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+===================================
+
+openapi: 3.0.0
+info:
+  title: API de Gestion des Dettes
+  version: 1.0.0
+  description: API pour gérer les dettes des clients, avec la possibilité de récupérer la liste des dettes pour un client spécifique.
+servers:
+  - url: http://localhost/api/v1
+    description: Serveur de développement local
+
+paths:
+  /api/v1/clients/{id}/dettes:
+    get:
+      summary: Récupérer la liste des dettes d'un client
+      description: Récupère toutes les dettes associées à un client spécifique en fonction de son ID.
+      parameters:
+        - name: id
+          in: path
+          description: ID du client pour lequel récupérer les dettes
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Liste des dettes récupérées avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Dette'
+        '404':
+          description: Client non trouvé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Client non trouvé
+      security:
+        - bearerAuth: []
+
+components:
+  schemas:
+    Dette:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        client_id:
+          type: integer
+          example: 1
+        montant:
+          type: number
+          format: float
+          example: 1500.00
+        date_echeance:
+          type: string
+          format: date
+          example: "2024-09-15"
+        statut:
+          type: string
+          example: "En attente"
+      required:
+        - id
+        - client_id
+        - montant
+        - date_echeance
+        - statut
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+==============================
+
+openapi: 3.0.0
+info:
+  title: API de Gestion des Clients
+  version: 1.0.0
+  description: API pour gérer les clients, avec la possibilité de créer un client et un utilisateur associé si les informations sont fournies.
+servers:
+  - url: http://localhost/api/v1
+    description: Serveur de développement local
+
+paths:
+  /api/v1/clients:
+    post:
+      summary: Créer un nouveau client
+      description: Crée un client avec les informations fournies. Optionnellement, crée également un utilisateur associé si les informations de connexion sont fournies.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                surnom:
+                  type: string
+                  example: "Sow"
+                prenom:
+                  type: string
+                  example: "Aissatou"
+                adresse:
+                  type: string
+                  example: "123 Rue de l'Exemple, Dakar"
+                telephone:
+                  type: string
+                  example: "+221 77 123 4567"
+                login:
+                  type: string
+                  example: "aissatou.sow"
+                password:
+                  type: string
+                  example: "password123"
+                role:
+                  type: string
+                  example: "vendeur"
+              required:
+                - surnom
+                - prenom
+                - adresse
+                - telephone
+      responses:
+        '201':
+          description: Client créé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Client'
+        '400':
+          description: Erreur de validation des données ou rôle invalide
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Le rôle spécifié est invalide."
+      security:
+        - bearerAuth: []
+
+components:
+  schemas:
+    Client:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        surnom:
+          type: string
+          example: "Sow"
+        prenom:
+          type: string
+          example: "Aissatou"
+        adresse:
+          type: string
+          example: "123 Rue de l'Exemple, Dakar"
+        telephone:
+          type: string
+          example: "+221 77 123 4567"
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+        - id
+        - surnom
+        - prenom
+        - adresse
+        - telephone
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Aissatou Sow"
+        login:
+          type: string
+          example: "aissatou.sow"
+        role_id:
+          type: integer
+          example: 2
+        # Notez que le mot de passe n'est pas retourné dans la réponse pour des raisons de sécurité
+      required:
+        - id
+        - name
+        - login
+        - role_id
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
