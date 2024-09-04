@@ -11,6 +11,7 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'photo' => $this->photo ? asset('storage/app/public/image/upload/avatar.png' . $this->photo) : null,
             'login' => $this->login,
             'role' => $this->role ? new RoleResource($this->role) : null, // Vérifie si le rôle existe
             'etat' => $this->etat,

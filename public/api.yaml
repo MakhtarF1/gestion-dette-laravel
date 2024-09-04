@@ -51,6 +51,9 @@ paths:
                   token:
                     type: string
                     example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  refreshToken:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                   status:
                     type: string
                     example: "OK"
@@ -176,6 +179,8 @@ paths:
       summary: Créer un nouvel utilisateur
       tags:
         - Users
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -191,6 +196,9 @@ paths:
                   type: string
                 role:
                   type: string
+                photo:
+                  type: string
+                  format: byte  # Format pour une image en base64
       responses:
         '201':
           description: Utilisateur créé avec succès
@@ -203,8 +211,36 @@ paths:
                     type: integer
                   name:
                     type: string
+                  photo:
+                    type: string
+                    format: uri  # URL de la photo
         '400':
           description: Erreur de validation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '403':
+          description: Accès interdit
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Erreur interne du serveur
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
 
   /api/v1/users/{id}:
     get:

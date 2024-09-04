@@ -16,6 +16,7 @@ class User extends Authenticatable
         'role_id', // Change 'role' to 'role_id'
         'login', // Corrected from 'email' to 'login'
         'password',
+        'photo',
     ];
 
     protected $hidden = [
@@ -31,7 +32,7 @@ class User extends Authenticatable
     // Relation avec le modèle Role
     public function role()
     {
-        return $this->belongsTo(Role::class, 'role_id'); // Assurez-vous que 'role_id' est le bon champ
+        return $this->belongsTo(Role::class);
     }
 
     // Relation avec le modèle Client

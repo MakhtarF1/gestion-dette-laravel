@@ -21,17 +21,17 @@ class StoreClientUserRequest extends FormRequest
      */
 
 
-    public function rules()
-    {
-        return [
-            'clientid' => 'required|exists:clients,id',
-            // Rendre les champs suivants optionnels
-            'surnom' => 'nullable|string',
-            'prenom' => 'nullable|string',
-            'adresse' => 'nullable|string',
-            'telephone' => 'nullable|string',
-        ];
-    }
+     public function rules()
+     {
+         return [
+             'name' => 'required|string|max:255',
+             'login' => 'required|string|max:255|unique:users',
+             'password' => 'required|string|min:8',
+             'role' => 'required|string|exists:roles,libelle',
+             'photo' => 'nullable|file|mimes:jpeg,png,jpg|max:2048', // Ensure file is optional and valid
+         ];
+     }
+     
 
     /**
      * Obtenez les messages de validation personnalisés.

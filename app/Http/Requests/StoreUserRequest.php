@@ -15,25 +15,25 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'login' => 'required|string|unique:users,login,' . $this->route('user'),
-            'password' => 'required|string|min:5|regex:/[A-Z]/|regex:/[a-z]/|regex:/[0-9]/|regex:/[!@#$%^&*()_+{}\[\]:;"\'<>?,.]/',
-            'role' => 'required|string|exists:roles,libelle', // Validation pour le rôle
+            'login' => 'required|string|email|max:255|unique:users,login',
+            'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|string|exists:roles,libelle',
+            'photo' => 'nullable|url', // Validate as URL
         ];
     }
-    
 
     public function messages()
     {
         return [
-            'name.required' => 'Le nom est requis.', // Message pour le nom
+            'name.required' => 'Le nom est requis.',
             'name.string' => 'Le nom doit être une chaîne de caractères.',
-            'login.required' => 'Le login est requis.', // Message pour le login
+            'login.required' => 'Le login est requis.',
             'login.unique' => 'Le login doit être unique.',
-            'password.required' => 'Le mot de passe est requis.', // Message pour le mot de passe
-            'password.min' => 'Le mot de passe doit contenir au moins 5 caractères.',
-            'password.regex' => 'Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial.',
-            'role.required' => 'Le rôle est requis.', // Message pour le rôle
-            'role.exists' => 'Le rôle sélectionné n\'est pas valide.',
+            'password.required' => 'Le mot de passe est requis.',
+            'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
+            'role.required' => 'Le rôle est requis.',
+            'role.exists' => 'Le rôle spécifié n\'existe pas.',
+            'photo.url' => 'La photo doit être une URL valide.',
         ];
     }
 }

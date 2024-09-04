@@ -32,7 +32,7 @@ Route::prefix('api/v1')->group(function () {
         // Routes pour les clients
 
         Route::post('clients/{id}/user', [ClientController::class, 'showWithUser']);
-        Route::post('clients/{id}/dettes', [ClientController::class, 'listDettes']);
+        Route::post('clients/{id}/dettes', [ClientController::class, 'getDetteByClient']);
         Route::post('clients/telephone', [ClientController::class, 'showByTelephone']);
         Route::get('clients', [ClientController::class, 'index']);
         Route::get('clients/{id}', [ClientController::class, 'show']);
