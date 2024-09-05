@@ -11,6 +11,8 @@ use App\Http\Resources\UserResource;
 use App\Services\ApiResponseService;
 use App\Models\Role;
 use App\Models\User;
+use App\Exceptions\UserNotFoundException;
+use App\Exceptions\UserCreationException;
 
 class UserController extends Controller
 {
@@ -50,36 +52,42 @@ class UserController extends Controller
 
             if ($request->hasFile('photo')) {
                 $file = $request->file('photo');
-                $photoPath = $this->uploadService->uploadFile($file, 'photos');
-                // Optionnel : enregistrer une copie locale
-                $file->storeAs('public/image/upload', 'avatar.png');
+                $originalName = $file->getClientOriginalName(); // Obtenir le nom d'origine
+                $extension = $file->getClientOriginalExtension(); // Obtenir l'extension
+                $uniqueName = pathinfo($originalName, PATHINFO_FILENAME) . '_' . uniqid() . '.' . $extension; // Générer un nom unique
+
+                // Stocker le fichier avec le nom unique
+                $photoPath = $file->storeAs('public/image/upload', $uniqueName);
             } else {
                 $photoPath = 'default-avatar.png';
             }
 
-            // Créez l'utilisateur
             $user = User::create([
                 'name' => $data['name'],
                 'login' => $data['login'],
-                'photo' => $photoPath, // URL Cloudinary uniquement
+                'photo' => $photoPath,
                 'password' => bcrypt($data['password']),
                 'role_id' => $role->id,
             ]);
 
-            // Générez le QR code et stockez son URL
             $qrCodeUrl = $this->qrService->generateQrCode($user->id);
-            $user->update(['qr_code' => $qrCodeUrl]); // Stockez l'URL du QR code
+            $user->update(['qr_code' => $qrCodeUrl]);
 
             return ApiResponseService::success(new UserResource($user), 201);
         } catch (\Exception $e) {
-            return ApiResponseService::error('Erreur lors de l\'upload de la photo ou de la génération du QR code : ' . $e->getMessage(), 500);
+            throw new UserCreationException($e->getMessage());
         }
     }
 
-
     public function destroy($id)
     {
-        $this->userService->deleteUser($id);
-        return ApiResponseService::successWithMessage('Utilisateur supprimé avec succès.', null, 204);
+        try {
+            $user = $this->userService->deleteUser($id);
+            return ApiResponseService::successWithMessage('Utilisateur supprimé avec succès.', null, 204);
+        } catch (UserNotFoundException $e) {
+            return ApiResponseService::error($e->getMessage(), $e->getCode());
+        } catch (\Exception $e) {
+            throw new UserCreationException($e->getMessage());
+        }
     }
 }

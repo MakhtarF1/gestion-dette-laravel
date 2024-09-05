@@ -26,6 +26,6 @@ class QrServiceImpl implements QrServiceInterface
         $fileName = 'qrcodes/' . uniqid() . '.png';
         Storage::disk('public')->put($fileName, $result->getString());
 
-        return 'storage/' . $fileName;
+        return 'storage/' . $fileName; 
     }
 }

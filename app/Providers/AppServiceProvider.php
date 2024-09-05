@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
 use App\Repositories\ClientRepositoryInterface;
@@ -21,6 +22,8 @@ use App\Repositories\UserRepositoryInterface;
 use App\Services\UserServiceInterface;
 use App\Services\QrServiceInterface;
 use App\Services\QrServiceImpl;
+use App\Observers\UserObserver;
+use App\Models\User;
 
 
 
@@ -50,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        User::observe(UserObserver::class);
 
         // Charger les routes pour les utilisateurs et les clients (API)
         Route::middleware('api')
