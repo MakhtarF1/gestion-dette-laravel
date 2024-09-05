@@ -15,6 +15,7 @@ class UserResource extends JsonResource
             'login' => $this->login,
             'role' => $this->role ? new RoleResource($this->role) : null, // Vérifie si le rôle existe
             'etat' => $this->etat,
+            'qr_code'=>$this->qr_code,
         ];
     }
 }

@@ -17,6 +17,7 @@ class User extends Authenticatable
         'login', // Corrected from 'email' to 'login'
         'password',
         'photo',
+        'qr_code'
     ];
 
     protected $hidden = [

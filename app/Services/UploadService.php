@@ -1,20 +1,39 @@
 <?php
+
 namespace App\Services;
 
-use Illuminate\Support\Facades\Storage;
+use Cloudinary\Cloudinary;
 use Illuminate\Http\UploadedFile;
 
 class UploadService implements UploadServiceInterface
 {
+    protected $cloudinary;
+
+    public function __construct()
+    {
+        // Configuration de Cloudinary avec les variables d'environnement
+        $this->cloudinary = new Cloudinary([
+            'cloud' => [
+                'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+                'api_key' => env('CLOUDINARY_API_KEY'),
+                'api_secret' => env('CLOUDINARY_API_SECRET'),
+            ],
+        ]);
+    }
+
     public function uploadFile(UploadedFile $file, $directory)
     {
-        // Create a unique filename for the uploaded file
-        $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+        try {
+            // Uploader le fichier sur Cloudinary
+            $result = $this->cloudinary->uploadApi()->upload($file->getRealPath(), [
+                'folder' => $directory,
+                'public_id' => uniqid(), // Générer un ID unique
+            ]);
 
-        // Store the file in the specified directory within the 'public' disk
-        $path = $file->storeAs($directory, $filename, 'public');
-
-        // Return the file path, stripping 'public/' for simplicity
-        return str_replace('public/', '', $path);
+            // Retourner l'URL sécurisée de l'image
+            return $result['secure_url'];
+        } catch (\Exception $e) {
+            throw new \Exception('Erreur lors de l\'upload : ' . $e->getMessage());
+        }
     }
 }

@@ -15,13 +15,13 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'login' => 'required|string|email|max:255|unique:users,login',
+            'login' => 'required|string|unique:users,login|max:255',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|string|exists:roles,libelle',
-            'photo' => 'nullable|url', // Validate as URL
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validation de l'image
         ];
     }
-
+    
     public function messages()
     {
         return [

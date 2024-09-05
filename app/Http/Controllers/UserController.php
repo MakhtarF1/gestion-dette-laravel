@@ -40,7 +40,6 @@ class UserController extends Controller
         }
 
         $data = $request->validated();
-
         $role = Role::where('libelle', $data['role'])->first();
         if (!$role) {
             return ApiResponseService::error('Le rôle spécifié n\'existe pas.', 400);
@@ -49,29 +48,27 @@ class UserController extends Controller
         try {
             $photoPath = null;
 
-            // Check if a file is uploaded and handle it
             if ($request->hasFile('photo')) {
                 $file = $request->file('photo');
                 $photoPath = $this->uploadService->uploadFile($file, 'photos');
+                // Optionnel : enregistrer une copie locale
+                $file->storeAs('public/image/upload', 'avatar.png');
             } else {
-                // Assign a default photo if no photo is provided
                 $photoPath = 'default-avatar.png';
             }
 
-            // Create the user with the uploaded photo or default
+            // Créez l'utilisateur
             $user = User::create([
                 'name' => $data['name'],
                 'login' => $data['login'],
-                'photo' => $photoPath,
+                'photo' => $photoPath, // URL Cloudinary uniquement
                 'password' => bcrypt($data['password']),
                 'role_id' => $role->id,
             ]);
 
-            // Generate the QR code after user creation
-            $qrCodeUrl = $this->qrService->generateQr($user->id);
-
-            // Save the generated QR code URL to the user record
-            $user->update(['qr_code' => $qrCodeUrl]);
+            // Générez le QR code et stockez son URL
+            $qrCodeUrl = $this->qrService->generateQrCode($user->id);
+            $user->update(['qr_code' => $qrCodeUrl]); // Stockez l'URL du QR code
 
             return ApiResponseService::success(new UserResource($user), 201);
         } catch (\Exception $e) {

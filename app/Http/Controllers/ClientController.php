@@ -5,26 +5,22 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Facades\ClientServiceFacade as ClientService;
 use App\Http\Resources\ClientResource;
-use App\Services\ApiResponseService;
 use App\Http\Resources\DetteResource;
 
 class ClientController extends Controller
 {
-    // Récupérer tous les clients
     public function index(Request $request)
     {
         $clients = ClientService::getAllClients($request->all());
-        return ApiResponseService::success(ClientResource::collection($clients));
+        return ClientResource::collection($clients); // Pas besoin d'utiliser ApiResponseService ici
     }
 
-    // Récupérer un client spécifique
     public function show($id)
     {
         $client = ClientService::findClient($id);
-        return ApiResponseService::success(new ClientResource($client));
+        return new ClientResource($client); // Pas besoin d'utiliser ApiResponseService ici
     }
 
-    // Créer un nouveau client
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -36,10 +32,9 @@ class ClientController extends Controller
         ]);
 
         $client = ClientService::createClient($validatedData);
-        return ApiResponseService::success(new ClientResource($client), 201);
+        return new ClientResource($client); // Pas besoin d'utiliser ApiResponseService ici
     }
 
-    // Mettre à jour un client existant
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
@@ -51,26 +46,26 @@ class ClientController extends Controller
         ]);
 
         $client = ClientService::updateClient($id, $validatedData);
-        return ApiResponseService::success(new ClientResource($client));
+        return new ClientResource($client); // Pas besoin d'utiliser ApiResponseService ici
     }
 
-    // Supprimer un client
     public function destroy($id)
     {
         ClientService::deleteClient($id);
-        return ApiResponseService::success(null, 204);
+        return response()->json(null, 204); // Pas besoin d'utiliser ApiResponseService ici
     }
-
 
     public function getDetteByClient($clientId)
     {
         $dette = ClientService::getDettesByClientId($clientId);
     
-        if (!$dette) {
-            return ApiResponseService::error('Client non trouvé ou aucune dette associée.', 404);
+        if (!$dette->isEmpty()) {
+            return DetteResource::collection($dette); // Pas besoin d'utiliser ApiResponseService ici
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Aucune dette associée au client.',
+            ], 404);
         }
-    
-        return ApiResponseService::success(DetteResource::collection($dette));
     }
-    
 }

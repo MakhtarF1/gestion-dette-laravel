@@ -2,31 +2,30 @@
 
 namespace App\Services;
 
+use App\Services\QrServiceInterface;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Support\Facades\Storage;
 
 class QrServiceImpl implements QrServiceInterface
 {
-    public function generateQr(string $data): string
+    /**
+     * Generate a QR code.
+     *
+     * @param string $data
+     * @return string The path to the generated QR code image.
+     */
+    public function generateQrCode(string $data): string
     {
-        // Validez les données pour s'assurer qu'elles ne sont pas vides
-        if (empty($data)) {
-            throw new \InvalidArgumentException('Les données du code QR doivent être une chaîne non vide.');
-        }
-
+        // Crée une instance de QrCode
         $qrCode = new QrCode($data);
         $writer = new PngWriter();
 
-        // Générez le code QR sous forme de données binaires
+        // Crée le QR code et sauvegarde l'image
         $result = $writer->write($qrCode);
-        $fileName = uniqid() . '.png';
-        $filePath = 'public/qrcodes/' . $fileName;
+        $fileName = 'qrcodes/' . uniqid() . '.png';
+        Storage::disk('public')->put($fileName, $result->getString());
 
-        // Enregistrez les données binaires dans un fichier
-        Storage::put($filePath, $result->getString());
-
-        // Retournez l'URL pour accéder à l'image du code QR
-        return Storage::url($filePath);
+        return 'storage/' . $fileName;
     }
 }

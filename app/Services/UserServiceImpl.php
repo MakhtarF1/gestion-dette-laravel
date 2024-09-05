@@ -46,7 +46,6 @@ class UserServiceImpl implements UserServiceInterface
         return $this->userRepository->create($data);
     }
     
-
     public function updateUser($id, $data)
     {
         if (isset($data['password'])) {
