@@ -5,28 +5,32 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
 class Client extends Model
 {
     use HasFactory;
 
-    // Attributs qui peuvent être assignés en masse
-    protected $fillable = ['surnom', 'prenom', 'adresse', 'telephone', 'user_id'];
-
-    // Attributs à cacher lors de la sérialisation
-    protected $hidden = [
-        'created_at',
-        'updated_at',
+    protected $fillable = [
+        'nom',
+        'prenom',
+        'adresse',
+        'telephone',
+        'user_id',
     ];
 
-    // Relation avec le modèle User
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function dette()
+    public function dettes()
     {
         return $this->hasMany(Dette::class);
+    }
+
+    public function paiements()
+    {
+        return $this->hasMany(Paiement::class);
     }
 
     // Scope pour filtrer par comptes associés

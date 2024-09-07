@@ -2,92 +2,67 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Services\UserServiceInterface;
-use App\Services\QrServiceInterface;
-use App\Services\UploadServiceInterface;
 use App\Http\Requests\StoreUserRequest;
-use App\Http\Resources\UserResource;
-use App\Services\ApiResponseService;
-use App\Models\Role;
-use App\Models\User;
-use App\Exceptions\UserNotFoundException;
-use App\Exceptions\UserCreationException;
+use App\Http\Requests\StoreClientUserRequest;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
     protected $userService;
-    protected $qrService;
-    protected $uploadService;
 
-    public function __construct(UserServiceInterface $userService, QrServiceInterface $qrService, UploadServiceInterface $uploadService)
+    public function __construct(UserServiceInterface $userService)
     {
         $this->userService = $userService;
-        $this->qrService = $qrService;
-        $this->uploadService = $uploadService;
     }
 
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
-        $filters = $request->only(['role', 'active']);
+        $filters = $request->all();
         $users = $this->userService->getAllUsers($filters);
-        return ApiResponseService::success(UserResource::collection($users));
+        return response()->json($users);
     }
 
-    public function store(StoreUserRequest $request)
+    public function show(int $id): JsonResponse
     {
-        $authUser = $request->user();
-        if ($authUser->role && trim($authUser->role->libelle) !== 'admin') {
-            return ApiResponseService::error('Vous n\'êtes pas autorisé à créer un compte utilisateur.', 403);
-        }
+        $user = $this->userService->getUserById($id);
+        
+        return response()->json($user);
+    }
 
+    public function store(StoreClientUserRequest $request): JsonResponse
+    {
+        $validatedData = $request->validated();
+        
+        try {
+            $result = $this->userService->createUserAndClient($validatedData);
+            return response()->json($result, Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function update(StoreUserRequest $request, int $id): JsonResponse
+    {
         $data = $request->validated();
-        $role = Role::where('libelle', $data['role'])->first();
-        if (!$role) {
-            return ApiResponseService::error('Le rôle spécifié n\'existe pas.', 400);
+        $updatedUser = $this->userService->updateUser($id, $data);
+
+        if (!$updatedUser) {
+            return response()->json(['error' => 'Utilisateur non trouvé ou mise à jour échouée.'], Response::HTTP_NOT_FOUND);
         }
 
-        try {
-            $photoPath = null;
-
-            if ($request->hasFile('photo')) {
-                $file = $request->file('photo');
-                $originalName = $file->getClientOriginalName(); // Obtenir le nom d'origine
-                $extension = $file->getClientOriginalExtension(); // Obtenir l'extension
-                $uniqueName = pathinfo($originalName, PATHINFO_FILENAME) . '_' . uniqid() . '.' . $extension; // Générer un nom unique
-
-                // Stocker le fichier avec le nom unique
-                $photoPath = $file->storeAs('public/image/upload', $uniqueName);
-            } else {
-                $photoPath = 'default-avatar.png';
-            }
-
-            $user = User::create([
-                'name' => $data['name'],
-                'login' => $data['login'],
-                'photo' => $photoPath,
-                'password' => bcrypt($data['password']),
-                'role_id' => $role->id,
-            ]);
-
-            $qrCodeUrl = $this->qrService->generateQrCode($user->id);
-            $user->update(['qr_code' => $qrCodeUrl]);
-
-            return ApiResponseService::success(new UserResource($user), 201);
-        } catch (\Exception $e) {
-            throw new UserCreationException($e->getMessage());
-        }
+        return response()->json($updatedUser);
     }
 
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         try {
-            $user = $this->userService->deleteUser($id);
-            return ApiResponseService::successWithMessage('Utilisateur supprimé avec succès.', null, 204);
-        } catch (UserNotFoundException $e) {
-            return ApiResponseService::error($e->getMessage(), $e->getCode());
+            $this->userService->deleteUser($id);
+            return response()->json(null, Response::HTTP_NO_CONTENT);
         } catch (\Exception $e) {
-            throw new UserCreationException($e->getMessage());
+            return response()->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
 }

@@ -30,7 +30,7 @@ Route::prefix('api/v1')->group(function () {
         Route::delete('users/{id}', [UserController::class, 'destroy']);
 
         // Routes pour les clients
-
+        Route::post('clients/optional', [ClientController::class, 'storeOptional']);
         Route::post('clients/{id}/user', [ClientController::class, 'showWithUser']);
         Route::post('clients/{id}/dettes', [ClientController::class, 'getDetteByClient']);
         Route::post('clients/telephone', [ClientController::class, 'showByTelephone']);

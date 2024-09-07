@@ -13,6 +13,7 @@ class Article extends Model
 
     protected $hidden = ['created_at', 'updated_at'];
 
+    // Relation avec le modèle Dette
     public function dettes()
     {
         return $this->belongsToMany(Dette::class, 'dette_article') // Spécifier la table pivot
@@ -20,4 +21,3 @@ class Article extends Model
                     ->withTimestamps();
     }
 }
-

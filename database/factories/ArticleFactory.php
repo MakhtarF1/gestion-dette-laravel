@@ -2,26 +2,19 @@
 
 namespace Database\Factories;
 
+use App\Models\Article;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Article>
- */
 class ArticleFactory extends Factory
 {
-    protected $model = \App\Models\Article::class;
+    protected $model = Article::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition(): array
+    public function definition()
     {
         return [
-            'libelle' => $this->faker->word(),
-            'prix' => $this->faker->randomFloat(2, 1, 100), // Prix entre 1 et 100
-            'quantitestock' => $this->faker->numberBetween(1, 50), // Stock entre 1 et 50
+            'libelle' => $this->faker->word,
+            'prix' => $this->faker->randomFloat(2, 1, 100),
+            'quantitestock' => $this->faker->numberBetween(1, 100),
         ];
     }
 }

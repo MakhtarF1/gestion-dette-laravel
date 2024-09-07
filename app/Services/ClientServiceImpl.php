@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\Repositories\ClientRepositoryInterface;
@@ -12,17 +13,12 @@ class ClientServiceImpl implements ClientServiceInterface
         $this->clientRepository = $clientRepository;
     }
 
-    public function getDettesByClientId($clientId)
-    {
-        return $this->clientRepository->getDettesByClientId($clientId);
-    }
-
-    public function getAllClients($filters)
+    public function getAllClients(array $filters)
     {
         return $this->clientRepository->all($filters);
     }
 
-    public function findClient($id)
+    public function findClient(int $id)
     {
         return $this->clientRepository->find($id);
     }
@@ -32,13 +28,18 @@ class ClientServiceImpl implements ClientServiceInterface
         return $this->clientRepository->create($data);
     }
 
-    public function updateClient($id, array $data)
+    public function updateClient(int $id, array $data)
     {
         return $this->clientRepository->update($id, $data);
     }
 
-    public function deleteClient($id)
+    public function deleteClient(int $id)
     {
         return $this->clientRepository->delete($id);
+    }
+
+    public function getDettesByClientId(int $clientId)
+    {
+        return $this->clientRepository->getDettesByClientId($clientId);
     }
 }

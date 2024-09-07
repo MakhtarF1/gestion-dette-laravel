@@ -12,9 +12,9 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasApiTokens;
 
     protected $fillable = [
-        'name',
-        'role_id', // Change 'role' to 'role_id'
-        'login', // Corrected from 'email' to 'login'
+        'surname',
+        'role_id', // ID du rôle
+        'login', // Utilisé comme identifiant
         'password',
         'photo',
         'qr_code'
@@ -23,6 +23,7 @@ class User extends Authenticatable
     protected $hidden = [
         'created_at',
         'updated_at',
+        'password', // Il est conseillé de cacher le mot de passe
     ];
 
     protected $casts = [
@@ -39,6 +40,6 @@ class User extends Authenticatable
     // Relation avec le modèle Client
     public function clients()
     {
-        return $this->hasOne(Client::class);
+        return $this->hasOne(Client::class); // Peut avoir plusieurs clients
     }
 }

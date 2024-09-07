@@ -13,12 +13,17 @@ return new class extends Migration
     {
         Schema::create('dettes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
-            $table->decimal('montant_pa', 10, 2);
-            $table->decimal('montant_rst', 10, 2);
+            $table->unsignedBigInteger('client_id')->constrained('clients')->onDelete('cascade'); // Relation avec clients
+            $table->decimal('montant_dette', 10, 2);
             $table->timestamps();
         });
     }
 
-    
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('dettes');
+    }
 };

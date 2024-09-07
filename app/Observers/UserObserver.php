@@ -1,48 +1,30 @@
 <?php
 
 namespace App\Observers;
-
+use App\Events\UserCreated;
 use App\Models\User;
+
 
 class UserObserver
 {
-    /**
-     * Handle the User "created" event.
-     */
     public function created(User $user): void
     {
-        //
+        event(new UserCreated($user));
     }
 
-    /**
-     * Handle the User "updated" event.
-     */
-    public function updated(User $user): void
+    public function creating(User $user)
     {
-        //
+        // Logique avant la création
     }
 
-    /**
-     * Handle the User "deleted" event.
-     */
-    public function deleted(User $user): void
+    public function updating(User $user)
     {
-        //
+        // Logique avant la mise à jour
     }
 
-    /**
-     * Handle the User "restored" event.
-     */
-    public function restored(User $user): void
+    public function deleting(User $user)
     {
-        //
-    }
-
-    /**
-     * Handle the User "force deleted" event.
-     */
-    public function forceDeleted(User $user): void
-    {
-        //
+        // Logique avant la suppression
     }
 }
+

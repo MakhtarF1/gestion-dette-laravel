@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreClientRequest;
 use App\Facades\ClientServiceFacade as ClientService;
 use App\Http\Resources\ClientResource;
 use App\Http\Resources\DetteResource;
@@ -12,55 +13,41 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         $clients = ClientService::getAllClients($request->all());
-        return ClientResource::collection($clients); // Pas besoin d'utiliser ApiResponseService ici
+        return ClientResource::collection($clients);
     }
 
-    public function show($id)
+    public function show(int $id)
     {
         $client = ClientService::findClient($id);
-        return new ClientResource($client); // Pas besoin d'utiliser ApiResponseService ici
+        return new ClientResource($client);
     }
 
-    public function store(Request $request)
+    public function store(StoreClientRequest $request)
     {
-        $validatedData = $request->validate([
-            'surnom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'adresse' => 'required|string|max:255',
-            'telephone' => 'required|string|max:20',
-            'user_id' => 'required|exists:users,id',
-        ]);
-
+        $validatedData = $request->validated();
         $client = ClientService::createClient($validatedData);
-        return new ClientResource($client); // Pas besoin d'utiliser ApiResponseService ici
+        return new ClientResource($client, 201);
     }
 
-    public function update(Request $request, $id)
+    public function update(StoreClientRequest $request, int $id)
     {
-        $validatedData = $request->validate([
-            'surnom' => 'sometimes|required|string|max:255',
-            'prenom' => 'sometimes|required|string|max:255',
-            'adresse' => 'sometimes|required|string|max:255',
-            'telephone' => 'sometimes|required|string|max:20',
-            'user_id' => 'sometimes|required|exists:users,id',
-        ]);
-
+        $validatedData = $request->validated();
         $client = ClientService::updateClient($id, $validatedData);
-        return new ClientResource($client); // Pas besoin d'utiliser ApiResponseService ici
+        return new ClientResource($client);
     }
 
-    public function destroy($id)
+    public function destroy(int $id)
     {
         ClientService::deleteClient($id);
-        return response()->json(null, 204); // Pas besoin d'utiliser ApiResponseService ici
+        return response()->json(null, 204);
     }
 
-    public function getDetteByClient($clientId)
+    public function getDetteByClient(int $clientId)
     {
         $dette = ClientService::getDettesByClientId($clientId);
     
-        if (!$dette->isEmpty()) {
-            return DetteResource::collection($dette); // Pas besoin d'utiliser ApiResponseService ici
+        if ($dette && !$dette->isEmpty()) {
+            return DetteResource::collection($dette);
         } else {
             return response()->json([
                 'status' => 'error',

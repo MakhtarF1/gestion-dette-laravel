@@ -2,59 +2,60 @@
 
 namespace App\Repositories;
 
-use App\Repositories\UserRepositoryInterface;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Role;
 
 class UserRepositoryImpl implements UserRepositoryInterface
 {
-    public function all($filters)
+    public function all(array $filters)
     {
         $query = User::with('role');
 
-        if (isset($filters['role'])) {
+        // Filtrer par rôle
+        if (!empty($filters['role'])) {
             $query->whereHas('role', function ($q) use ($filters) {
                 $q->where('libelle', $filters['role']);
             });
         }
 
-        if (isset($filters['active'])) {
+        // Filtrer par état actif/inactif
+        if (!empty($filters['active'])) {
             $etat = $filters['active'] === 'oui' ? 'actif' : 'inactif';
             $query->where('etat', $etat);
         }
 
-        return $query->orderBy('name')->paginate(10);
+        return $query->orderBy('login')->paginate(10);
     }
 
-    public function findById($id)
+    public function findById(int $id): User
     {
-        return User::findOrFail($id);
+        return User::findOrFail($id); // Renvoie une exception si l'utilisateur n'est pas trouvé
     }
 
-    public function create($data)
+    public function create(array $data): User
     {
         $role = Role::where('libelle', $data['role'])->firstOrFail();
 
         return User::create([
-            'name' => $data['name'],
+            'surname' => $data['surname'],
             'login' => $data['login'],
-            'password' => bcrypt($data['password']),
+            'password' => Hash::make($data['password']),
             'etat' => 'actif',
             'role_id' => $role->id,
+            'photo' => $data['photo'],
         ]);
     }
 
-    public function update($id, $data)
+    public function update(int $id, array $data): User
     {
-        $user = User::findOrFail($id);
+        $user = $this->findById($id);
         $user->update($data);
         return $user;
     }
 
-    public function delete($id)
+    public function delete(int $id): bool
     {
-        $user = User::findOrFail($id);
-        $user->delete();
-        return $user;
+        return User::destroy($id);
     }
 }

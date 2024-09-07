@@ -9,13 +9,15 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('oauth_personal_access_clients', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('client_id');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('oauth_personal_access_clients')) {
+            Schema::create('oauth_personal_access_clients', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('client_id')->nullable(false);
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -19,16 +19,20 @@ class StoreClientRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
+
     public function rules(): array
     {
         return [
-            'surnom' => 'required|string|max:255|unique:clients,surnom',
+            'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
             'adresse' => 'required|string|max:255',
             'telephone' => 'required|string|max:20|unique:clients,telephone',
             'user_id' => 'nullable|exists:users,id',
         ];
     }
+
+
+
     /**
      * Obtenez les messages de validation personnalisés.
      *

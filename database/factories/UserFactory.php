@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Factories;
 
 use App\Models\User;
@@ -8,14 +9,17 @@ class UserFactory extends Factory
 {
     protected $model = User::class;
 
-    public function definition(): array
+    public function definition()
     {
         return [
-            'name' => $this->faker->name(),
-            'etat' => 'actif', // Valeur par défaut
-            'role_id' => 1, // Assure-toi que l'ID 1 correspond à un rôle valide
-            'login' => $this->faker->unique()->safeEmail(),
-            'password' => bcrypt('Password123!'), // Mot de passe par défaut
+            'surname' => $this->faker->name(), // Utilisation de name comme surname
+            'etat' => $this->faker->randomElement(['actif', 'inactif']),
+            'role_id' => $this->faker->randomElement([1, 2, 3]), // Choisir aléatoirement 1, 2 ou 3
+            'login' => $this->faker->unique()->userName(),
+            'password' => bcrypt('Password123!'), // Mot de passe constant
+            'photo' => $this->faker->imageUrl(), // URL d'une image aléatoire
+            'qr_code' => $this->faker->optional()->imageUrl(), // QR code optionnel
+            'etat_photo' => $this->faker->randomElement(['actif', 'inactif']),
         ];
     }
 }

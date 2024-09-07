@@ -19,5 +19,15 @@ class Dette extends Model
                     ->withPivot('quantitestock', 'prix')
                     ->withTimestamps();
     }
-}
 
+    public function paiements()
+    {
+        return $this->belongsToMany(Paiement::class, 'dette_paiement')
+                    ->withTimestamps();
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+}

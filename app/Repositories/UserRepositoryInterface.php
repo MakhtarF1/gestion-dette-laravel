@@ -2,11 +2,13 @@
 
 namespace App\Repositories;
 
+use App\Models\User;
+
 interface UserRepositoryInterface
 {
-    public function all($filters);
-    public function findById($id);
-    public function create($data);
-    public function update($id, $data);
-    public function delete($id);
+    public function all(array $filters);
+    public function findById(int $id): User; // Méthode définie
+    public function create(array $data): User;
+    public function update(int $id, array $data): User;
+    public function delete(int $id): bool;
 }

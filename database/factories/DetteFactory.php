@@ -2,25 +2,19 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Dette;
 use App\Models\Client;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Dette>
- */
 class DetteFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition(): array
+    protected $model = Dette::class;
+
+    public function definition()
     {
         return [
-            'client_id' => Client::factory(), // Crée un client associé
-            'montant_pa' => $this->faker->randomFloat(2, 100, 1000),
-            'montant_rst' => $this->faker->randomFloat(2, 0, 1000),
+            'client_id' => Client::factory(), // Créer un client associé
+            'montant_dette' => $this->faker->randomFloat(2, 100, 10000), // Montant de la dette entre 100 et 10000
         ];
     }
 }
