@@ -55,8 +55,6 @@ class AppServiceProvider extends ServiceProvider
     {
         User::observe(UserObserver::class);
 
-        
-
         // Charger les routes pour les utilisateurs et les clients (API)
         Route::middleware('api')
             ->group(base_path('routes/api.php'));

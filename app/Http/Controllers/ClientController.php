@@ -55,4 +55,20 @@ class ClientController extends Controller
             ], 404);
         }
     }
+
+    public function findByTelephone(Request $request)
+    {
+        $telephone = $request->input('telephone');
+
+        if (!$telephone) {
+            return response()->json(['error' => 'Le numéro de téléphone est requis'], 400);
+        }
+
+        try {
+            $client = ClientService::findClientByTelephone($telephone);
+            return new ClientResource($client);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 404);
+        }
+    }
 }

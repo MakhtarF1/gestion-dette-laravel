@@ -8,6 +8,8 @@ use App\Http\Requests\StoreClientUserRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Hash;
+
 
 class UserController extends Controller
 {
@@ -28,7 +30,6 @@ class UserController extends Controller
     public function show(int $id): JsonResponse
     {
         $user = $this->userService->getUserById($id);
-        
         return response()->json($user);
     }
 
@@ -36,6 +37,13 @@ class UserController extends Controller
     {
         $validatedData = $request->validated();
         
+        // Vérifiez si une photo a été téléchargée
+        if ($request->hasFile('photo')) {
+            // Stockez le fichier temporairement
+            $photoPath = $request->file('photo')->store('photos'); // Emplacement permanent
+            $validatedData['photo_path'] = $photoPath; // Ajoutez le chemin au tableau de données validées
+        }
+
         try {
             $result = $this->userService->createUserAndClient($validatedData);
             return response()->json($result, Response::HTTP_CREATED);
@@ -47,6 +55,10 @@ class UserController extends Controller
     public function update(StoreUserRequest $request, int $id): JsonResponse
     {
         $data = $request->validated();
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+
         $updatedUser = $this->userService->updateUser($id, $data);
 
         if (!$updatedUser) {

@@ -23,6 +23,17 @@ class ClientServiceImpl implements ClientServiceInterface
         return $this->clientRepository->find($id);
     }
 
+    public function findClientByTelephone(string $telephone)
+    {
+        $client = $this->clientRepository->findByTelephone($telephone);
+
+        if (!$client) {
+            throw new \Exception('Client non trouvé');
+        }
+
+        return $client;
+    }
+
     public function createClient(array $data)
     {
         return $this->clientRepository->create($data);

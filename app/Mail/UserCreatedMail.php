@@ -2,8 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\User;
-use App\Services\PdfService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -13,22 +11,29 @@ class UserCreatedMail extends Mailable
     use Queueable, SerializesModels;
 
     public $user;
-    protected $pdfService;
+    public $pdfPath;
 
-    public function __construct(User $user,  $pdfService)
+    public function __construct($user, $pdfPath)
     {
         $this->user = $user;
-        $this->pdfService = $pdfService;
+        $this->pdfPath = $pdfPath;
     }
 
     public function build()
     {
-        // Générer le PDF
-        $pdfContent = $this->pdfService->generatePdf($this->user);
+        // Assure-toi que l'adresse e-mail est définie
+        $userEmail = $this->user->login;
 
-        return $this->subject('Bienvenue!')
-                    ->attachData($pdfContent, 'profile.pdf', [
+        // Vérifie si l'adresse e-mail est valide
+        if (is_null($userEmail) || !filter_var($userEmail, FILTER_VALIDATE_EMAIL)) {
+            throw new \Exception('L\'adresse e-mail est invalide ou manquante.');
+        }
+
+        return $this->view('emails.carte_fidelite')
+                    ->attach($this->pdfPath, [
+                        'as' => 'carte_fidelite_'.$this->user->id.'.pdf',
                         'mime' => 'application/pdf',
-                    ]);
+                    ])
+                    ->to($userEmail); // Assure-toi que cette adresse est valide
     }
 }

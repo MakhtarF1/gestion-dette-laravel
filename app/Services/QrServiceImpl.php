@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\Storage;
 class QrServiceImpl implements QrServiceInterface
 {
     /**
-     * Generate a QR code.
+     * Générer un QR code.
      *
      * @param string $data
-     * @return string The path to the generated QR code image.
+     * @return string Le chemin vers l'image générée du QR code.
      */
     public function generateQrCode(string $data): string
     {

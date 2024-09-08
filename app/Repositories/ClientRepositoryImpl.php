@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Client;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 
 class ClientRepositoryImpl implements ClientRepositoryInterface
 {
@@ -39,6 +40,11 @@ class ClientRepositoryImpl implements ClientRepositoryInterface
     public function findById(int $id): Client
     {
         return $this->find($id); // Réutilisation de la méthode find
+    }
+
+    public function findByTelephone(string $telephone): ?Client
+    {
+        return Client::where('telephone', $telephone)->with('user')->first();
     }
 
     public function create(array $data): Client

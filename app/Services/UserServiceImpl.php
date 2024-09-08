@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Repositories\UserRepositoryInterface;
-use App\Services\UserServiceInterface;
 use App\Repositories\ClientRepositoryInterface;
 use App\Models\User;
 use App\Models\Role;
@@ -40,7 +39,7 @@ class UserServiceImpl implements UserServiceInterface
             'password' => Hash::make($data['password']),
             'etat' => 'actif',
             'role_id' => $role->id,
-            'photo' => $data['photo'] ?? 'default_photo.jpg', // Valeur par défaut pour la photo
+            'photo' => $data['photo_path'] ?? 'default_photo.jpg', // Valeur par défaut pour la photo
         ]);
     }
 
@@ -55,6 +54,7 @@ class UserServiceImpl implements UserServiceInterface
         $data['password'] = Hash::make($data['password']);
 
         return DB::transaction(function () use ($data) {
+            // Si un client_id est fourni
             if (isset($data['client_id'])) {
                 $client = $this->clientRepository->find($data['client_id']);
 
@@ -63,14 +63,16 @@ class UserServiceImpl implements UserServiceInterface
                 }
 
                 if ($client->user_id === null) {
+                    // Création d'un nouvel utilisateur
                     $user = $this->userRepository->create([
                         'surname' => $data['surname'],
                         'login' => $data['login'],
                         'password' => $data['password'],
                         'role' => $data['role'],
-                        'photo' => $data['photo'] ?? 'default_photo.jpg',
+                        'photo' => $data['photo_path'] ?? 'default_photo.jpg',
                     ]);
 
+                    // Association du nouvel utilisateur avec le client
                     $client->user_id = $user->id;
                     $client->save();
 
@@ -82,20 +84,24 @@ class UserServiceImpl implements UserServiceInterface
                     throw new Exception('Ce client a déjà un compte utilisateur.');
                 }
             } else {
+                // Cas où aucun client_id n'est fourni, création d'un utilisateur et d'un client
+                if ($this->clientRepository->findByTelephone($data['telephone'])) {
+                    throw new Exception('Le numéro de téléphone est déjà utilisé.');
+                }
+
                 $user = $this->userRepository->create([
                     'surname' => $data['surname'],
                     'login' => $data['login'],
                     'password' => $data['password'],
                     'role' => $data['role'],
-                    'photo' => $data['photo'] ?? 'default_photo.jpg',
+                    'photo' => $data['photo_path'] ?? 'default_photo.jpg',
                 ]);
 
-                // Assurez-vous que 'adresse' est bien présent ou fournissez une valeur par défaut
                 $clientData = [
                     'user_id' => $user->id,
-                    'nom' => $data['nom'], // Assurez-vous que ce champ est présent dans les données
+                    'nom' => $data['nom'],
                     'prenom' => $data['prenom'],
-                    'adresse' => $data['adresse'] ?? 'Adresse non spécifiée', // Ajout d'une valeur par défaut pour adresse
+                    'adresse' => $data['adresse'] ?? 'Adresse non spécifiée',
                     'telephone' => $data['telephone'],
                 ];
 
