@@ -11,4 +11,5 @@ interface QrServiceInterface
      * @return string The path to the generated QR code image.
      */
     public function generateQrCode(string $data): string;
+    
 }

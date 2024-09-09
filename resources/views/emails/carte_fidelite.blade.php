@@ -112,7 +112,7 @@
         </div>
         <div class="qr-code">
             @if ($user->qr_code)
-                <img src="{{ asset('storage/qrcodes/' . $user->qr_code) }}" alt="QR Code"> <!-- Utilisation de qr_code -->
+                <img src="data:image/png;base64,{{ $qrcode }}" alt="QR Code"> <!-- Utilisation de qr_code -->
             @else
                 <p>QR Code Non Disponible</p>
             @endif

@@ -13,7 +13,6 @@ class UploadService implements UploadServiceInterface
 
     public function __construct()
     {
-        // Configuration via CLOUDINARY_URL (via le fichier .env)
         $this->cloudinary = new Cloudinary(env('CLOUDINARY_URL'));
     }
 
@@ -29,8 +28,8 @@ class UploadService implements UploadServiceInterface
         try {
             // Uploader le fichier sur Cloudinary
             $result = (new UploadApi())->upload($file->getRealPath(), [
-                'folder' => $folder,  // Dossier sur Cloudinary
-                'public_id' => uniqid(), // Générer un ID unique pour chaque fichier
+                'folder' => $folder, 
+                'public_id' => uniqid(), 
                 'overwrite' => true,
             ]);
 

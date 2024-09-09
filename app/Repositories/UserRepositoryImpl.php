@@ -30,7 +30,7 @@ class UserRepositoryImpl implements UserRepositoryInterface
 
     public function findById(int $id): User
     {
-        return User::findOrFail($id); // Renvoie une exception si l'utilisateur n'est pas trouvé
+        return User::findOrFail($id); 
     }
 
     public function create(array $data): User

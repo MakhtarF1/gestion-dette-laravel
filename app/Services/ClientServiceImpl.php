@@ -3,6 +3,10 @@
 namespace App\Services;
 
 use App\Repositories\ClientRepositoryInterface;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
+
+
 
 class ClientServiceImpl implements ClientServiceInterface
 {
@@ -21,17 +25,6 @@ class ClientServiceImpl implements ClientServiceInterface
     public function findClient(int $id)
     {
         return $this->clientRepository->find($id);
-    }
-
-    public function findClientByTelephone(string $telephone)
-    {
-        $client = $this->clientRepository->findByTelephone($telephone);
-
-        if (!$client) {
-            throw new \Exception('Client non trouvé');
-        }
-
-        return $client;
     }
 
     public function createClient(array $data)
@@ -53,4 +46,21 @@ class ClientServiceImpl implements ClientServiceInterface
     {
         return $this->clientRepository->getDettesByClientId($clientId);
     }
+
+    public function findClientWithUser(int $id)
+    {
+        return $this->clientRepository->findWithUser($id);
+    }
+
+    public function findClientByTelephone(string $telephone)
+    {
+        $client = $this->clientRepository->findByTelephone($telephone);
+
+        if (!$client) {
+            throw new ModelNotFoundException('Client non trouvé');
+        }
+
+        return $client;
+    }
+    
 }

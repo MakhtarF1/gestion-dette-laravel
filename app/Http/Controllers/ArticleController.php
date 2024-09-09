@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\ArticleService;
-use App\Http\Requests\ArticleRequest;
 use App\Services\ArticleServiceInterface;
+use App\Http\Requests\ArticleRequest;
 use Illuminate\Http\Request;
 use App\Services\ApiResponseService;
 
@@ -19,22 +18,16 @@ class ArticleController extends Controller
 
     public function index(Request $request)
     {
-        $disponible = $request->query('disponible');
-        $params = [];
-
-        if ($disponible !== null) {
-            if ($disponible === 'oui') {
-                $params['disponible'] = true;
-            } elseif ($disponible === 'non') {
-                $params['disponible'] = false;
-            } else {
-                return ApiResponseService::error('Paramètre "disponible" invalide.', 400);
-            }
+        // Vérifiez si des paramètres de filtrage sont présents
+        if ($request->has('disponible')) {
+            $filters = $request->only(['disponible']);
+            return response()->json($this->articleService->findByFilters($filters));
         }
-
-        $articles = $this->articleService->all($params);
-        return ApiResponseService::success($articles, 200);
+    
+        // Si aucun paramètre n'est fourni, récupérez tous les articles
+        return response()->json($this->articleService->all());
     }
+    
 
     public function store(ArticleRequest $request)
     {
@@ -48,7 +41,6 @@ class ArticleController extends Controller
         }
     }
 
-
     public function show($id)
     {
         $article = $this->articleService->find($id);
@@ -59,7 +51,6 @@ class ArticleController extends Controller
             return ApiResponseService::error('Article non trouvé.', 404);
         }
     }
-
 
     public function update(ArticleRequest $request, $id)
     {
@@ -73,7 +64,6 @@ class ArticleController extends Controller
         }
     }
 
-
     public function destroy($id)
     {
         $success = $this->articleService->delete($id);
@@ -85,5 +75,13 @@ class ArticleController extends Controller
         }
     }
 
-    // Autres méthodes (store, show, update, delete) adaptées de la même manière
+    public function findByLibelle($libelle){
+        $article = $this->articleService->findByLibelle($libelle);
+
+        if ($article) {
+            return ApiResponseService::success($article, 200);
+        } else {
+            return ApiResponseService::error('Article non trouvé.', 404);
+        }
+    }
 }

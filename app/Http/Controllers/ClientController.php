@@ -8,6 +8,7 @@ use App\Facades\ClientServiceFacade as ClientService;
 use App\Http\Resources\ClientResource;
 use App\Http\Resources\DetteResource;
 
+
 class ClientController extends Controller
 {
     public function index(Request $request)
@@ -39,21 +40,17 @@ class ClientController extends Controller
     public function destroy(int $id)
     {
         ClientService::deleteClient($id);
-        return response()->json(null, 204);
+        return response()->json("Client supprimé avec success", 204);
     }
 
     public function getDetteByClient(int $clientId)
     {
         $dette = ClientService::getDettesByClientId($clientId);
-    
+
         if ($dette && !$dette->isEmpty()) {
             return DetteResource::collection($dette);
-        } else {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Aucune dette associée au client.',
-            ], 404);
         }
+        return response()->json(['error' => 'Aucune dette trouvée pour ce client'], 404);
     }
 
     public function findByTelephone(Request $request)
@@ -67,6 +64,34 @@ class ClientController extends Controller
         try {
             $client = ClientService::findClientByTelephone($telephone);
             return new ClientResource($client);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 404);
+        }
+    }
+
+    public function showWithUser(int $id)
+    {
+        $client = ClientService::findClient($id);
+
+        if (!$client) {
+            return response()->json(['error' => 'Client non trouvé'], 404);
+        }
+
+        return new ClientResource($client->load('user'));
+    }
+
+
+    public function showByTelephone(Request $request)
+    {
+        $telephone = $request->input('telephone');
+
+        if (!$telephone) {
+            return response()->json(['error' => 'Le numéro de téléphone est requis'], 400);
+        }
+
+        try {
+            $client = ClientService::findClientByTelephone($telephone);
+            return new ClientResource($client->load('user'));
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 404);
         }

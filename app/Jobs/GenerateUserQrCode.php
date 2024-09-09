@@ -24,21 +24,21 @@ class GenerateUserQrCode implements ShouldQueue
     
     public function handle(QrServiceInterface $qrService)
     {
-        try {
-            Log::info("Handling QR code generation for user ID: " . $this->userId);
-            $qrCodePath = $qrService->generateQrCode($this->userId);
+        // try {
+        //     Log::info("Handling QR code generation for user ID: " . $this->userId);
+        //     $qrCodePath = $qrService->generateQrCode($this->userId);
             
-            // Mettre à jour l'utilisateur avec le chemin du QR code
-            $user = User::find($this->userId);
-            if ($user) {
-                $user->qr_code = $qrCodePath; // Mise à jour pour la colonne qr_code
-                $user->save();
-                Log::info('QR code de l\'utilisateur ID ' . $this->userId . ' généré et stocké avec succès : ' . $qrCodePath);
-            } else {
-                Log::error("Utilisateur non trouvé pour l'ID : " . $this->userId);
-            }
-        } catch (\Exception $e) {
-            Log::error("Erreur lors de la génération du QR code pour l'utilisateur ID : " . $this->userId . " - " . $e->getMessage());
-        }
+        //     $user = User::find($this->userId);
+        //     if ($user) {
+        //         $user->qr_code = $qrCodePath; 
+        //         $user->save();
+
+        //         Log::info('QR code de l\'utilisateur ID ' . $this->userId . ' généré et stocké avec succès : ' . $qrCodePath);
+        //     } else {
+        //         Log::error("Utilisateur non trouvé pour l'ID : " . $this->userId);
+        //     }
+        // } catch (\Exception $e) {
+        //     Log::error("Erreur lors de la génération du QR code pour l'utilisateur ID : " . $this->userId . " - " . $e->getMessage());
+        // }
     }
 }

@@ -8,9 +8,18 @@ class ArticleRepositoryImpl implements ArticleRepositoryInterface
 {
     public function all(array $params = [])
     {
-        // Implémentez la logique de récupération des articles ici
-        return Article::all();
+        $query = Article::query();
+
+        if (isset($params['disponible'])) {
+            if ($params['disponible'] === 'oui') {
+                $query->where('quantitestock', '>', 0);
+            } elseif ($params['disponible'] === 'non') {
+                $query->where('quantitestock', '=', 0);
+            }
+        }
+        return $query->get();
     }
+
 
     public function create(array $data)
     {
@@ -44,11 +53,22 @@ class ArticleRepositoryImpl implements ArticleRepositoryInterface
 
     public function findByLibelle($libelle)
     {
-        return Article::where('libelle', $libelle)->first();
+        return Article::where('libelle', trim($libelle))->first();
     }
 
     public function findByEtat($etat)
     {
         // Implémentez la logique pour trouver par état
+    }
+
+    public function findByFilters(array $filters)
+    {
+        $query = Article::query();
+
+        if (isset($filters['disponible'])) {
+            $query->disponible($filters['disponible']);
+        }
+
+        return $query->get();
     }
 }

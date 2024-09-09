@@ -13,6 +13,18 @@ class Article extends Model
 
     protected $hidden = ['created_at', 'updated_at'];
 
+
+
+    public function scopeDisponible($query, $disponible)
+    {
+        if ($disponible === 'oui') {
+            return $query->where('quantitestock', '>', 0);
+        } elseif ($disponible === 'non') {
+            return $query->where('quantitestock', '=', 0);
+        }
+
+        return $query; 
+    }
     // Relation avec le modèle Dette
     public function dettes()
     {

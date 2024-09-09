@@ -14,6 +14,7 @@ class StoreUserRequest extends FormRequest
     public function rules()
     {
         return [
+            'clientid' => 'required|exists:clients,id',
             'surname' => 'required|string|max:255',
             'login' => 'required|string|unique:users,login|max:255',
             'password' => 'required|string|min:8|confirmed',
@@ -21,6 +22,7 @@ class StoreUserRequest extends FormRequest
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
+    
 
     public function messages()
     {

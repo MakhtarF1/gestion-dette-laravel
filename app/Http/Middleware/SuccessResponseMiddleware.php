@@ -4,7 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use App\Services\ApiResponseService;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class SuccessResponseMiddleware
 {
@@ -18,11 +19,19 @@ class SuccessResponseMiddleware
     public function handle(Request $request, Closure $next)
     {
         $response = $next($request);
+   
+        if ($response instanceof JsonResponse && $response->status() === Response::HTTP_OK) {
+            $originalData = $response->getData(true);
 
-        if ($response->status() === 200 && $response instanceof \Illuminate\Http\JsonResponse) {
-        
-            return ApiResponseService::success($response->getData());
+            $formattedData = [
+                'message' => 'Succès',
+                'data' => isset($originalData['data']) ? $originalData['data'] : $originalData,
+                'status' => $response->status()
+            ];
+
+            return response()->json($formattedData, Response::HTTP_OK);
         }
+
         return $response;
     }
 }

@@ -20,35 +20,29 @@ class UploadUserPhotoJob implements ShouldQueue
     public function __construct($user, $photoPath)
     {
         $this->user = $user;
-        $this->photoPath = $photoPath; // Chemin temporaire
+        $this->photoPath = $photoPath; 
     }
 
     public function handle()
     {
         try {
-            // Vérifiez si le fichier photo existe
+            
             if (!file_exists(storage_path('photos/' . $this->photoPath))) {
                 throw new \Exception('Le fichier photo n\'existe pas : ' . $this->photoPath);
             }
-
-            // Instanciez Cloudinary
+           
             $cloudinary = new Cloudinary();
-
-            // Téléchargez l'image sur Cloudinary
             $response = $cloudinary->uploadApi()->upload(storage_path('photos/' . $this->photoPath), [
-                'folder' => 'users_photos/' . $this->user->id // Dossier sur Cloudinary
+                'folder' => 'users_photos/' . $this->user->id 
             ]);
 
-            // Vérifiez si le téléchargement a réussi
             if (isset($response['secure_url'])) {
-                // Enregistrez l'URL dans l'utilisateur
-                $this->user->photo_path = $response['secure_url']; // Mettez à jour avec l'URL sécurisée
-                $this->user->save(); // Sauvegarder les modifications
+                $this->user->photo_path = $response['secure_url'];
+                $this->user->save();
             } else {
                 throw new \Exception('Erreur lors de l\'upload sur Cloudinary : ' . json_encode($response));
             }
 
-            // Optionnel : Supprimez le fichier temporaire
             unlink(storage_path('photos/' . $this->photoPath));
         } catch (\Exception $e) {
             Log::error('Erreur lors de l\'upload de la photo pour l\'utilisateur ID ' . $this->user->id . ' : ' . $e->getMessage());

@@ -8,36 +8,28 @@ use App\Jobs\UploadUserPhotoJob;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
+use Mpdf\Tag\B;
 
 class UserObserver
 {
-    /**
-     * Handle the User "created" event.
-     *
-     * @param  \App\Models\User  $user
-     * @return void
-     */
+ 
     public function created(User $user)
     {
-        // Vérifier si l'utilisateur a une adresse e-mail valide
+      
+        event(new UserCreated($user));
         if (empty($user->login) || !filter_var($user->login, FILTER_VALIDATE_EMAIL)) {
             Log::error('Adresse e-mail invalide pour l\'utilisateur ID ' . $user->id);
-            return; // Gérer l'erreur ici
+            return; 
         }
 
-        // Déclencher l'événement UserCreated
-        event(new UserCreated($user));
-
-        // Si une photo est associée à l'utilisateur, dispatcher le job pour upload
         if ($user->photo) {
             UploadUserPhotoJob::dispatch($user, $user->photo);
         }
+        // $qrcode = base64_encode(file_get_contents(storage_path('app/public/' . $user->qr_code)));
 
-        // Générer le PDF de la carte fidélité
-        $pdf = Pdf::loadView('emails.carte_fidelite', ['user' => $user]);
-        $pdfPath = 'carte_fidelite_'.$user->id.'.pdf';
+        // $pdf = Pdf::loadView('emails.carte_fidelite', ['user' => $user, 'qrcode' => $qrcode]);
+        // $pdfPath = 'carte_fidelite_'.$user->id.'.pdf';
 
-        // Sauvegarder le PDF dans le stockage
-        Storage::put($pdfPath, $pdf->output());
+        // Storage::put($pdfPath, $pdf->output());
     }
 }

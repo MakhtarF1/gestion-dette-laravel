@@ -25,13 +25,5 @@ class ApiResponseService
         ], $statusCode);
     }
 
-  
-    public static function successWithMessage(string $message, $data = null, int $statusCode = 200): JsonResponse
-    {
-        return response()->json([
-            'status' => Status::SUCCESS->value,
-            'message' => $message,
-            'data' => $data,
-        ], $statusCode);
-    }
+
 }

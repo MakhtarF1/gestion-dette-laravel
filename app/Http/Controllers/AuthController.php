@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreClientRequest;
 use Illuminate\Http\Request;
 use App\Services\AuthenticationServiceInterface;
 use App\Services\ApiResponseService;
@@ -34,34 +35,38 @@ class AuthController extends Controller
         return $this->authService->logout();
     }
 
-    public function register(StoreUserRequest $userRequest, StoreClientUserRequest $clientRequest): JsonResponse
+    public function register(StoreUserRequest $userRequest): JsonResponse
     {
-        return DB::transaction(function () use ($userRequest, $clientRequest) {
-            $client = Client::where('id', $clientRequest->clientid)
+        $clientid = $userRequest->clientid;
+    
+        return DB::transaction(function () use ($userRequest, $clientid) {
+            $client = Client::where('id', $clientid)
                 ->whereNull('user_id')
                 ->first();
-
+    
             if (!$client) {
                 return ApiResponseService::error('Le client doit exister et ne doit pas avoir de compte utilisateur.', 400);
             }
-
+    
             $user = User::create([
-                'name' => "{$client->prenom} {$client->nom}",
+                'surname' => "{$client->prenom} {$client->nom}",
                 'login' => $userRequest->login,
                 'photo' => $userRequest->photo,
                 'password' => Hash::make($userRequest->password),
                 'role_id' => $this->getRoleId($userRequest->role),
             ]);
-
+    
+            // Associer l'utilisateur au client
             $client->user_id = $user->id;
             $client->save();
-
+    
             return ApiResponseService::success([
                 'client' => $client,
                 'user' => $user,
             ], 201);
         });
     }
+    
 
     private function getRoleId(string $role)
     {

@@ -5,7 +5,7 @@ namespace App\Events;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class UserCreated
+class UserPhotoUploaded
 {
     use Dispatchable, SerializesModels;
 
@@ -19,7 +19,7 @@ class UserCreated
      * @param $photo
      */
     public function __construct($user, $photo)
-    {
+    { 
         $this->user = $user;
         $this->photo = $photo;
     }

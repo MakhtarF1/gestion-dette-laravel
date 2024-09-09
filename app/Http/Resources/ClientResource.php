@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Resources;
-use App\Http\Resources\UserResource;
+
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ClientResource extends JsonResource
@@ -10,11 +10,12 @@ class ClientResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'surnom' => $this->surnom,
+            'nom' => $this->nom,
             'prenom' => $this->prenom,
             'adresse' => $this->adresse,
             'telephone' => $this->telephone,
-            'user' => new UserResource($this->whenLoaded('user')), // Charge l'utilisateur associé
+            'user_id' => $this->user_id,
+            'user' => new UserResource($this->whenLoaded('user')),
         ];
-    }    
+    }
 }
