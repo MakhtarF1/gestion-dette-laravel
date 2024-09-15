@@ -11,12 +11,15 @@
         "cloudinary/cloudinary_php": "^2.14",
         "darkaonline/l5-swagger": "^8.6",
         "endroid/qr-code": "^5.1",
+        "jenssegers/mongodb": "^5.0",
+        "kreait/firebase-php": "^7.10",
         "laravel/framework": "^11.9",
         "laravel/passport": "^12.3",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "league/flysystem-aws-s3-v3": "^3.28",
         "mpdf/mpdf": "^8.2",
+        "twilio/sdk": "^8.3",
         "tymon/jwt-auth": "^2.1"
     },
     "require-dev": {

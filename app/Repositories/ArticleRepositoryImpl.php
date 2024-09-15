@@ -53,7 +53,7 @@ class ArticleRepositoryImpl implements ArticleRepositoryInterface
 
     public function findByLibelle($libelle)
     {
-        return Article::where('libelle', trim($libelle))->first();
+        return Article::where('libelle',trim($libelle))->first();
     }
 
     public function findByEtat($etat)
@@ -71,4 +71,33 @@ class ArticleRepositoryImpl implements ArticleRepositoryInterface
 
         return $query->get();
     }
+
+    public function updateStock($id, $qteStock)
+    {
+        $article = $this->find($id);
+        if ($article) {
+            $article->quantitestock += $qteStock;
+            $article->save();
+            return $article;
+        }
+        return null;
+    }
+
+    public function incrementStock($id, $qteStock)
+    {
+        $article = Article::find($id);
+
+        if ($article) {
+            // Incrémenter la quantité en stock
+            $article->quantitestock += $qteStock;
+            $article->save();
+
+            return $article;
+        }
+
+        return null;
+    }
+
+
+    
 }

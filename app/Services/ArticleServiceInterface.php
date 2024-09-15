@@ -14,7 +14,15 @@ interface ArticleServiceInterface
 
     public function delete($id);
 
-    public function findByFilters(array $filters); 
-
     public function findByLibelle($libelle);
+
+    public function findByEtat($etat);
+
+    public function findByFilters(array $filters);
+
+    public function updateStock($id, $qteStock);
+
+    public function incrementStock($id, $qteStock);
+
+    public function updateStockBatch(array $articles);
 }

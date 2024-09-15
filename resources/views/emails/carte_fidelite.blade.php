@@ -96,18 +96,10 @@
             <div class="title">Carte de Fidélité</div>
         </div>
         <div class="badge">
-            @if ($user->client)
-                {{ $user->surname }} <!-- Initiales du nom et prénom -->
-            @else
-                N/A
-            @endif
+            <img src="data:image/png;base64,{{ $photos }}" alt="QR Code"> 
+                {{ $user->nom ,$user->prenom}} <!-- Initiales du nom et prénom -->
         </div>
         <div class="user-info">
-            @if ($user->client)
-                <strong>{{ $user->surname }}</strong> <!-- Affichage du nom et prénom -->
-            @else
-                <strong>Client Non Disponible</strong>
-            @endif
             <p>{{ $user->login }}</p> <!-- Affichage du login -->
         </div>
         <div class="qr-code">

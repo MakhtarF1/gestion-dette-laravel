@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\StoreClientUserRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
@@ -34,42 +35,33 @@ class AuthController extends Controller
     {
         return $this->authService->logout();
     }
-
     public function register(StoreUserRequest $userRequest): JsonResponse
     {
-        $clientid = $userRequest->clientid;
+        // Debugging : Log des données de la requête
+        logger()->info('Données de la requête:', $userRequest->all());
     
-        return DB::transaction(function () use ($userRequest, $clientid) {
-            $client = Client::where('id', $clientid)
-                ->whereNull('user_id')
-                ->first();
+        // Créer l'utilisateur
+        $user = User::create([
+            'nom' => $userRequest->nom,
+            'prenom' => $userRequest->prenom,
+            'login' => $userRequest->login,
+            'password' => Hash::make($userRequest->password),
+            'photo' => $userRequest->photo, // Assurez-vous que c'est une chaîne
+            'role_id' => $this->getRoleId($userRequest->role),
+        ]);
     
-            if (!$client) {
-                return ApiResponseService::error('Le client doit exister et ne doit pas avoir de compte utilisateur.', 400);
-            }
-    
-            $user = User::create([
-                'surname' => "{$client->prenom} {$client->nom}",
-                'login' => $userRequest->login,
-                'photo' => $userRequest->photo,
-                'password' => Hash::make($userRequest->password),
-                'role_id' => $this->getRoleId($userRequest->role),
-            ]);
-    
-            // Associer l'utilisateur au client
-            $client->user_id = $user->id;
-            $client->save();
-    
-            return ApiResponseService::success([
-                'client' => $client,
-                'user' => $user,
-            ], 201);
-        });
+        return response()->json([
+            'message' => 'Utilisateur créé avec succès.',
+            'user' => $user,
+        ], 201);
     }
+    
     
 
-    private function getRoleId(string $role)
-    {
-        return Role::where('libelle', $role)->value('id');
-    }
+private function getRoleId(string $role)
+{
+    return Role::where('libelle', $role)->value('id');
+}
+
+
 }

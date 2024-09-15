@@ -2,6 +2,9 @@
 
 return [
 
+    
+    'archive_service' => env('ARCHIVE_SERVICE', 'mongo'), // 'firebase' ou 'mongo'
+
     /*
     |--------------------------------------------------------------------------
     | Application Name

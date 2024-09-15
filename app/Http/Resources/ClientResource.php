@@ -10,12 +10,12 @@ class ClientResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'nom' => $this->nom,
-            'prenom' => $this->prenom,
+            'surname' => $this->surname,
             'adresse' => $this->adresse,
             'telephone' => $this->telephone,
             'user_id' => $this->user_id,
-            'user' => new UserResource($this->whenLoaded('user')),
+            'categorie_id' => $this->categorie_id,
+            'max_montant' => $this->max_montant,
         ];
     }
 }

@@ -23,13 +23,14 @@ class Article extends Model
             return $query->where('quantitestock', '=', 0);
         }
 
-        return $query; 
+        return $query;
     }
     // Relation avec le modèle Dette
+
     public function dettes()
     {
-        return $this->belongsToMany(Dette::class, 'dette_article') // Spécifier la table pivot
-                    ->withPivot('quantitestock', 'prix')
-                    ->withTimestamps();
+        return $this->belongsToMany(Dette::class, 'dette_article')
+            ->withPivot('quantite', 'prix')
+            ->withTimestamps();
     }
 }

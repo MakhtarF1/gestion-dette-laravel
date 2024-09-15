@@ -34,6 +34,6 @@ class UserCreatedMail extends Mailable
                         'as' => 'carte_fidelite_'.$this->user->id.'.pdf',
                         'mime' => 'application/pdf',
                     ])
-                    ->to($userEmail); // Assure-toi que cette adresse est valide
+                    ->to($userEmail); 
     }
 }

@@ -8,7 +8,7 @@ interface UserServiceInterface
 {
     public function create(array $data): User;
 
-    public function createUserAndClient(array $data);
+    public function createUserAndClient($data);
 
     public function getAllUsers(array $filters);
 

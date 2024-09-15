@@ -12,14 +12,13 @@ class UserRepositoryImpl implements UserRepositoryInterface
     {
         $query = User::with('role');
 
-        // Filtrer par rôle
+        // filtre par rôle
         if (!empty($filters['role'])) {
             $query->whereHas('role', function ($q) use ($filters) {
                 $q->where('libelle', $filters['role']);
             });
         }
-
-        // Filtrer par état actif/inactif
+        // filtre par etat
         if (!empty($filters['active'])) {
             $etat = $filters['active'] === 'oui' ? 'actif' : 'inactif';
             $query->where('etat', $etat);
@@ -35,10 +34,11 @@ class UserRepositoryImpl implements UserRepositoryInterface
 
     public function create(array $data): User
     {
+       
         $role = Role::where('libelle', $data['role'])->firstOrFail();
-
         return User::create([
-            'surname' => $data['surname'],
+            'nom' => $data['nom'],
+            'prenom' => $data['prenom'],
             'login' => $data['login'],
             'password' => Hash::make($data['password']),
             'etat' => 'actif',

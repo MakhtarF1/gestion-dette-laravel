@@ -34,28 +34,33 @@ class UserServiceImpl implements UserServiceInterface
 
         // Création de l'utilisateur
         return User::create([
-            'surname' => $data['surname'],
+            'nom' => $data['nom'],
+            'prenom' => $data['prenom'],
             'login' => $data['login'],
             'password' => Hash::make($data['password']),
             'etat' => 'actif',
             'role_id' => $role->id,
-            'photo' => $data['photo_path'] ?? 'default_photo.jpg', // Valeur par défaut pour la photo
+            'photo' => $data['photo_path'] ?? 'default_photo.jpg',
         ]);
     }
 
     /**
      * Créer un utilisateur et un client.
      */
-    public function createUserAndClient(array $data)
+    public function createUserAndClient($data)
     {
-        $this->authorizeAdmin();
+
+        $this->authorizeBoutiquier();
+     
 
         // Hashage du mot de passe
         $data['password'] = Hash::make($data['password']);
-
         return DB::transaction(function () use ($data) {
+           
+
             // Si un client_id est fourni
             if (isset($data['client_id'])) {
+
                 $client = $this->clientRepository->find($data['client_id']);
 
                 if (!$client) {
@@ -63,9 +68,11 @@ class UserServiceImpl implements UserServiceInterface
                 }
 
                 if ($client->user_id === null) {
+                  
                     // Création d'un nouvel utilisateur
                     $user = $this->userRepository->create([
-                        'surname' => $data['surname'],
+                        'nom' => $data['nom'],
+                        'prenom' => $data['prenom'],
                         'login' => $data['login'],
                         'password' => $data['password'],
                         'role' => $data['role'],
@@ -90,7 +97,8 @@ class UserServiceImpl implements UserServiceInterface
                 }
 
                 $user = $this->userRepository->create([
-                    'surname' => $data['surname'],
+                    'nom' => $data['nom'],
+                    'prenom' => $data['prenom'],
                     'login' => $data['login'],
                     'password' => $data['password'],
                     'role' => $data['role'],
@@ -99,8 +107,7 @@ class UserServiceImpl implements UserServiceInterface
 
                 $clientData = [
                     'user_id' => $user->id,
-                    'nom' => $data['nom'],
-                    'prenom' => $data['prenom'],
+                    'surname' => $data['surname'],
                     'adresse' => $data['adresse'] ?? 'Adresse non spécifiée',
                     'telephone' => $data['telephone'],
                 ];
@@ -158,11 +165,12 @@ class UserServiceImpl implements UserServiceInterface
     /**
      * Autoriser uniquement les administrateurs.
      */
-    protected function authorizeAdmin()
+    protected function authorizeBoutiquier()
     {
         $authUser = Auth::user();
-        if ($authUser && trim($authUser->role->libelle) !== 'admin') {
+        if ($authUser && trim($authUser->role->libelle) !== 'boutiquier') {
             throw new Exception('Vous n\'êtes pas autorisé à effectuer cette action.', 403);
         }
     }
+    
 }

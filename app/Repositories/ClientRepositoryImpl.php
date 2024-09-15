@@ -14,16 +14,21 @@ class ClientRepositoryImpl implements ClientRepositoryInterface
         // Filtrage par état actif
         if (isset($params['active'])) {
             $params['active'] === 'oui' ? $query->isActive() : $query->isInactive();
-        } 
+        }
         // Filtrage par compte
         elseif (isset($params['compte'])) {
-            $params['compte'] === 'oui' 
-                ? $query->whereNotNull('user_id') 
+            $params['compte'] === 'oui'
+                ? $query->whereNotNull('user_id')
                 : $query->whereNull('user_id');
+        }elseif(isset($params['role'])){
+
+
         }
 
         return $query->get();
     }
+
+    
 
     public function findWithUser(int $id): Client
     {
@@ -44,7 +49,7 @@ class ClientRepositoryImpl implements ClientRepositoryInterface
     public function find(int $id): Client
     {
         $client = Client::with('user')->find($id);
-        
+
         if (!$client) {
             throw new ModelNotFoundException("Client not found");
         }
@@ -52,12 +57,18 @@ class ClientRepositoryImpl implements ClientRepositoryInterface
         return $client;
     }
 
-
     public function create(array $data): Client
     {
-        return Client::create($data);
+        return Client::create([
+            'surname' => $data['surname'],
+            'telephone' => $data['telephone'],
+            'adresse' => $data['adresse'] ?? '',
+            'categorie_id' => $data['categorie_id'], 
+            'max_montant' => $data['max_montant'],
+        ]);
     }
-
+    
+    
     public function update(int $id, array $data): Client
     {
         $client = $this->find($id);
@@ -73,12 +84,15 @@ class ClientRepositoryImpl implements ClientRepositoryInterface
 
     public function getDettesByClientId(int $clientId)
     {
-        $client = Client::with('dette')->find($clientId);
+        $client = Client::with('dettes')->find($clientId);
 
         if (!$client) {
-            return null;
+            throw new ModelNotFoundException("Client non trouvé");
         }
 
-        return $client->dette; 
+        return $client->dettes;
     }
+
+
+    
 }

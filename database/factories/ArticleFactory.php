@@ -18,3 +18,4 @@ class ArticleFactory extends Factory
         ];
     }
 }
+    

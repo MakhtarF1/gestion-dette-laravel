@@ -15,6 +15,11 @@ class Paiement extends Model
         'montant',
     ];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
+
     public function client()
     {
         return $this->belongsTo(Client::class);
@@ -23,11 +28,5 @@ class Paiement extends Model
     public function dette()
     {
         return $this->belongsTo(Dette::class);
-    }
-
-    public function dettes()
-    {
-        return $this->belongsToMany(Dette::class, 'dette_paiement')
-                    ->withTimestamps();
     }
 }

@@ -41,6 +41,21 @@ return [
             'journal_mode' => null,
             'synchronous' => null,
         ],
+        
+        'firebase' => [
+            'driver' => 'firebase',
+            'credentials' => env('FIREBASE_CREDENTIALS', '/home/anonima/ProjetLaravelODC/serviceAccountKey.json'),
+            'database' => env('FIREBASE_DATABASE_URL', 'https://detteboutique-default-rtdb.firebaseio.com/'),
+        ],
+
+
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'dsn' => env('DB_URL', 'mongodb+srv://fallmakh026:txOMNj6Bh6FjBpug@dette.i6y8k.mongodb.net/?retryWrites=true&w=majority&appName=dette'),
+            'database' => 'ArchiveDette',
+        ],
+
+
 
         'mysql' => [
             'driver' => 'mysql',
@@ -147,7 +162,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [

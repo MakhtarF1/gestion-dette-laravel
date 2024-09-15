@@ -29,6 +29,7 @@ class UserCreatedListener
 
             // Charge le QR Code en base64
             $qrcode = base64_encode(file_get_contents(storage_path('app/public/' .  $user->qr_code)));
+            // $photos = base64_encode(file_get_contents(storage_path('app/photos/' .  $user->photo)));
 
             Log::info($qrcode);
 

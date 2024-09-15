@@ -17,9 +17,7 @@ class DetteResource extends JsonResource
         return [
             'id' => $this->id,
             'client_id' => $this->client_id,
-            'montant_pa' => $this->montant_pa,
-            'montant_rst' => $this->montant_rst,
-        
+            'montant_dette' => $this->montant_dette
         ];
     }
 }

@@ -18,5 +18,9 @@ interface ArticleRepositoryInterface
 
     public function findByEtat($etat);
 
-    public function findByFilters(array $filters); // Cette ligne doit être présente
+    public function findByFilters(array $filters);
+
+    public function updateStock($id, $qteStock);
+
+    public function incrementStock($id, $qteStock); 
 }

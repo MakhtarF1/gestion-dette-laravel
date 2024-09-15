@@ -2,9 +2,14 @@
 
 namespace App\Services;
 
+use App\Http\Requests\StoreUserRequest;
+use App\Models\Client;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AuthenticationPassport implements AuthenticationServiceInterface
 {
@@ -24,7 +29,8 @@ class AuthenticationPassport implements AuthenticationServiceInterface
             'id' => $user->id,
             'role' => $user->role->libelle,
             'photo' => $user->photo,
-            'name' => $user->name,
+            'nom' => $user->nom,
+            'prenom' => $user->prenom,
             'login' => $user->login,
             'etat' => $user->etat,
             'role_id' => $user->role_id,
@@ -36,7 +42,7 @@ class AuthenticationPassport implements AuthenticationServiceInterface
         ], 200);
     }
 
-
+   
     public function logout()
     {
         // Implémentez la méthode de déconnexion ici

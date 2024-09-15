@@ -1,65 +1,41 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\Dette;
+use App\Services\DetteServiceInterface;
+use App\Http\Requests\StoreDetteRequest;
+use Exception;
 use Illuminate\Http\Request;
 
 class DetteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $detteService;
+    protected $archive;
+
+    public function __construct(DetteServiceInterface $detteService)
     {
-        //
+        $this->detteService = $detteService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function createDette(StoreDetteRequest $request)
     {
-        //
+        $clientId = $request->input('client_id');
+        $articlesData = $request->input('articles');
+
+        $result = $this->detteService->createDette($clientId, $articlesData);
+
+        return response()->json($result, 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+    public function index(){
+        $dettes = $this->detteService->getAllDettes();
+        return response()->json($dettes);  
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Dette $dette)
-    {
-        //
+    public function addPaiement($dette_id,$client_id, Request $request){
+        $client_id =$request->input('client_id');
+        $montant_paiement = $request->input('montant_paiement');
+        $result = $this->detteService->addPaiement($dette_id, $client_id,$montant_paiement);
+        return response()->json($result);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Dette $dette)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Dette $dette)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Dette $dette)
-    {
-        //
-    }
-}
+}   

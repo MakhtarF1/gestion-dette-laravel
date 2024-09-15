@@ -24,6 +24,7 @@ class UserObserver
 
         if ($user->photo) {
             UploadUserPhotoJob::dispatch($user, $user->photo);
+            
         }
         // $qrcode = base64_encode(file_get_contents(storage_path('app/public/' . $user->qr_code)));
 

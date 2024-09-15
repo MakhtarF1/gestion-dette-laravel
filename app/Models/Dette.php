@@ -9,25 +9,31 @@ class Dette extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['client_id', 'montant_pa', 'montant_rst'];
+    protected $fillable = ['client_id', 'montant_dette'];
 
     protected $hidden = ['created_at', 'updated_at'];
 
     public function articles()
     {
-        return $this->belongsToMany(Article::class, 'dette_article') // Spécifier la table pivot
-                    ->withPivot('quantitestock', 'prix')
+        return $this->belongsToMany(Article::class, 'dette_article')
+                    ->withPivot('quantite', 'prix')
                     ->withTimestamps();
     }
 
     public function paiements()
     {
-        return $this->belongsToMany(Paiement::class, 'dette_paiement')
-                    ->withTimestamps();
+        return $this->hasMany(Paiement::class);
     }
 
     public function client()
     {
         return $this->belongsTo(Client::class);
     }
+
+    public function isCompletelyPaid()
+    {
+        $totalPaiements = $this->paiements()->sum('montant');
+        return $totalPaiements >= $this->montant_dette;
+    }
+    
 }

@@ -12,7 +12,8 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasApiTokens;
 
     protected $fillable = [
-        'surname',
+        'prenom',
+        'nom',
         'role_id', // ID du rôle
         'login', // Utilisé comme identifiant
         'password',
@@ -34,12 +35,23 @@ class User extends Authenticatable
     // Relation avec le modèle Role
     public function role()
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(Role::class, 'role_id'); // Assurez-vous que la colonne `role_id` existe dans la table users
     }
 
-    // Relation avec le modèle Client
-    public function clients()
+    public function client()
     {
-        return $this->hasOne(Client::class); // Peut avoir plusieurs clients
+        return $this->hasOne(Client::class, 'user_id'); 
+    }
+
+    public function routeNotificationForMail($notification)
+    {
+        return $this->login; // Utiliser le champ login comme adresse e-mail
+    }
+
+    // Ajouter la méthode isBoutiquier
+    public function isBoutiquier(): bool
+    {
+        // Assurez-vous que 'boutiquier' est bien le libellé du rôle correspondant
+        return $this->role && $this->role->libelle === 'boutiquier'; 
     }
 }
